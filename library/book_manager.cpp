@@ -90,13 +90,12 @@ void save_data() {
 void add_book() {
     Book b;
     cout << "\n=== \u6DFB\u52A0\u56FE\u4E66 ===\n";
-    cout << "\u56FE\u4E66\u7F16\u53F7: "; cin >> b.id;
-    cin.ignore();
+    cout << "\u56FE\u4E66\u7F16\u53F7: "; getline(cin, b.id);
     cout << "\u4E66\u540D: "; getline(cin, b.title);
     cout << "\u4F5C\u8005: "; getline(cin, b.author);
     cout << "\u7C7B\u578B: "; getline(cin, b.category);
-    cout << "\u4EF7\u683C: "; cin >> b.price;
-    cout << "\u5728\u5E93\u6570\u91CF: "; cin >> b.stock;
+    cout << "\u4EF7\u683C: "; { string _t; getline(cin, _t); b.price = stod(_t); }
+    cout << "\u5728\u5E93\u6570\u91CF: "; { string _t; getline(cin, _t); b.stock = stoi(_t); }
     b.added_date = now_str();
     books.push_back(b);
     save_data();
@@ -132,7 +131,6 @@ void list_books() {
 // search_book —— 按书名或编号搜索图书
 void search_book() {
     string kw;
-    cin.ignore();
     cout << "\n\u8F93\u5165\u4E66\u540D\u6216\u7F16\u53F7\u641C\u7D22: ";
     getline(cin, kw);
     bool found = false;
@@ -166,7 +164,7 @@ void search_book() {
 void delete_book() {
     string id;
     cout << "\n\u8F93\u5165\u8981\u5220\u9664\u7684\u56FE\u4E66\u7F16\u53F7: ";
-    cin >> id;
+    getline(cin, id);
     auto it = remove_if(books.begin(), books.end(),
         [&](Book& b) { return b.id == id; });
     if (it != books.end()) {
@@ -182,10 +180,9 @@ void delete_book() {
 void update_book() {
     string id;
     cout << "\n\u8F93\u5165\u8981\u4FEE\u6539\u7684\u56FE\u4E66\u7F16\u53F7: ";
-    cin >> id;
+    getline(cin, id);
     for (auto& b : books) {
         if (b.id == id) {
-            cin.ignore();
             cout << "\u65B0\u4E66\u540D(\u5F53\u524D:" << b.title << "): ";
             getline(cin, b.title);
             cout << "\u65B0\u4F5C\u8005(\u5F53\u524D:" << b.author << "): ";
@@ -193,9 +190,9 @@ void update_book() {
             cout << "\u65B0\u7C7B\u578B(\u5F53\u524D:" << b.category << "): ";
             getline(cin, b.category);
             cout << "\u65B0\u4EF7\u683C(\u5F53\u524D:" << b.price << "): ";
-            cin >> b.price;
+            { string _t; getline(cin, _t); b.price = stod(_t); }
             cout << "\u65B0\u5E93\u5B58(\u5F53\u524D:" << b.stock << "): ";
-            cin >> b.stock;
+            { string _t; getline(cin, _t); b.stock = stoi(_t); }
             save_data();
             cout << "\u56FE\u4E66\u4FEE\u6539\u6210\u529F\u3002\n";
             return;
@@ -207,7 +204,7 @@ void update_book() {
 // main —— 主菜单循环，加载数据后进入操作选择
 int main() {
     load_data();
-    int choice;
+    string line;
     do {
         cout << "\n========================================\n";
         cout << "      \u56FE\u4E66\u4FE1\u606F\u7BA1\u7406\u7CFB\u7EDF\n";
@@ -220,16 +217,24 @@ int main() {
         cout << "  0. \u9000\u51FA\n";
         cout << "========================================\n";
         cout << "\u8BF7\u9009\u62E9: ";
-        cin >> choice;
+        getline(cin, line);
+        if (line.empty()) { getline(cin, line); }
+        if (line.size() != 1 || line[0] < '0' || line[0] > '5') {
+            cout << "\u65E0\u6548\u9009\u62E9\uFF0C\u8BF7\u91CD\u8F93\u3002\n";
+            continue;
+        }
+        int choice = line[0] - '0';
+        if (choice == 0) {
+            cout << "\u5DF2\u9000\u51FA\u7CFB\u7EDF\u3002\n";
+            break;
+        }
         switch (choice) {
             case 1: add_book(); break;
             case 2: list_books(); break;
             case 3: search_book(); break;
             case 4: update_book(); break;
             case 5: delete_book(); break;
-            case 0: cout << "\u5DF2\u9000\u51FA\u7CFB\u7EDF\u3002\n"; break;
-            default: cout << "\u65E0\u6548\u9009\u62E9\uFF0C\u8BF7\u91CD\u8F93\u3002\n";
         }
-    } while (choice != 0);
+    } while (true);
     return 0;
 }
