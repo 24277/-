@@ -1,0 +1,1 @@
+{"round_id":10,"prompt_content":"现在打开exe文件时表现如图，使其能够正常输出utf-8字体","modify_diff":"@@ -8,6 +8,7 @@ 添加 #include <windows.h>; @@ -506,6 +507,7 @@ main函数开头添加 SetConsoleOutputCP(CP_UTF8); 编译添加 -static 避免运行时DLL问题","commit_hash":"8aa5204cc48d88f8e3caf084348a095a245e7b42","modify_time":"2026-07-14 19:19:00","agent_type":"Kilo Code","dev_language":"C++"}
