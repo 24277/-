@@ -418,11 +418,13 @@ static bool customer_login() {
     cout << "\u8D26\u53F7: "; getline(cin, acct);
     if (!customers.count(acct)) {
         cout << "\u8D26\u53F7\u201C" << acct << "\u201D\u4E0D\u5B58\u5728\uFF0C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u6CE8\u518C\u3002\n";
+        pause();
         return false;
     }
     cout << "\u5BC6\u7801: "; getline(cin, pass);
     if (customers[acct].password != pass) {
         cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n";
+        pause();
         return false;
     }
     logged_customer = acct;
