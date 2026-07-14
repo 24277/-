@@ -313,7 +313,7 @@ void list_books() {
         string line; getline(cin, line);
         if (line.size() != 1 || line[0] < '0' || line[0] > '4') continue;
         int c = line[0] - '0';
-        if (c == 0) break;
+        if (c == 0) { return; }
         if (c == 4) { filter_kw = ""; filter_cat = ""; filter_start = ""; filter_end = ""; continue; }
         if (c == 1) {
             cout << "\u5173\u952E\u8BCD: "; getline(cin, filter_kw);
@@ -324,7 +324,6 @@ void list_books() {
             cout << "\u622A\u6B62\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_end);
         }
     } while (true);
-    pause();
 }
 
 // delete_book —— 按编号删除图书
@@ -525,13 +524,12 @@ void query_books_customer() {
         string line; getline(cin, line);
         if (line.size() != 1 || line[0] < '0' || line[0] > '4') continue;
         int c = line[0] - '0';
-        if (c == 0) break;
+        if (c == 0) return;
         if (c == 4) { filter_kw = ""; filter_cat = ""; filter_start = ""; filter_end = ""; continue; }
         if (c == 1) { cout << "\u5173\u952E\u8BCD: "; getline(cin, filter_kw); }
         else if (c == 2) { cout << "\u7C7B\u522B: "; getline(cin, filter_cat); }
         else if (c == 3) { cout << "\u8D77\u59CB\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_start); cout << "\u622A\u6B62\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_end); }
     } while (true);
-    pause();
 }
 
 // 前向声明
