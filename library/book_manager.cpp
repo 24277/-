@@ -31,7 +31,8 @@ struct Book {
 
 // Customer 结构体 —— 存储顾客信息
 struct Customer {
-    string name;        // 顾客名
+    string account;     // 账号（字母+数字，登录用）
+    string nickname;    // 昵称（可含中文，显示用）
     string password;    // 密码
     double balance;     // 账户余额
 };
@@ -103,7 +104,7 @@ void save_data() {
 }
 
 // load_customers —— 从 customers.txt 读取顾客数据
-// 每行格式：顾客名|密码|余额
+// 每行格式：账号|密码|昵称|余额
 void load_customers() {
     customers.clear();
     ifstream in(CUSTOMER_FILE);
@@ -113,13 +114,14 @@ void load_customers() {
         if (line.empty()) continue;
         stringstream ss(line);
         Customer c;
-        getline(ss, c.name, '|');
+        getline(ss, c.account, '|');
         getline(ss, c.password, '|');
+        getline(ss, c.nickname, '|');
         string bs;
         getline(ss, bs, '|');
-        if (c.name.empty() || bs.empty()) continue;
+        if (c.account.empty() || bs.empty()) continue;
         c.balance = stod(bs);
-        customers[c.name] = c;
+        customers[c.account] = c;
     }
 }
 
@@ -127,7 +129,7 @@ void load_customers() {
 void save_customers() {
     ofstream out(CUSTOMER_FILE);
     for (auto& kv : customers) {
-        out << kv.second.name << '|' << kv.second.password << '|' << kv.second.balance << '\n';
+        out << kv.second.account << '|' << kv.second.password << '|' << kv.second.nickname << '|' << kv.second.balance << '\n';
     }
 }
 
@@ -292,28 +294,36 @@ void update_book() {
 void register_customer() {
     Customer c;
     cout << "\n=== \u6CE8\u518C\u987E\u5BA2 ===\n";
-    cout << "\u987E\u5BA2\u540D: "; getline(cin, c.name);
-    if (customers.count(c.name)) {
-        cout << "\u8BE5\u987E\u5BA2\u540D\u5DF2\u5B58\u5728\u3002\n";
+    cout << "\u8D26\u53F7\uFF08\u5B57\u6BCD+\u6570\u5B57\uFF09: "; getline(cin, c.account);
+    if (customers.count(c.account)) {
+        cout << "\u8BE5\u8D26\u53F7\u5DF2\u5B58\u5728\u3002\n";
         return;
     }
+    for (char ch : c.account) {
+        if (!isalnum(ch)) {
+            cout << "\u8D26\u53F7\u53EA\u80FD\u5305\u542B\u5B57\u6BCD\u548C\u6570\u5B57\uFF01\n";
+            return;
+        }
+    }
     cout << "\u5BC6\u7801: "; getline(cin, c.password);
+    cout << "\u6635\u79F0: "; getline(cin, c.nickname);
+    if (c.nickname.empty()) c.nickname = c.account;
     c.balance = 0;
-    customers[c.name] = c;
+    customers[c.account] = c;
     save_customers();
-    cout << "\u987E\u5BA2\u201C" << c.name << "\u201D\u6CE8\u518C\u6210\u529F\uFF01\n";
+    cout << "\u987E\u5BA2\u201C" << c.nickname << "\u201D\u6CE8\u518C\u6210\u529F\uFF01\n";
 }
 
 // customer_login —— 顾客登录，返回 true 表示登录成功
 static bool customer_login() {
-    string name, pass;
-    cout << "\u987E\u5BA2\u540D: "; getline(cin, name);
-    if (!customers.count(name)) {
-        cout << "\u987E\u5BA2\u201C" << name << "\u201D\u4E0D\u5B58\u5728\uFF0C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u6CE8\u518C\u3002\n";
+    string acct, pass;
+    cout << "\u8D26\u53F7: "; getline(cin, acct);
+    if (!customers.count(acct)) {
+        cout << "\u8D26\u53F7\u201C" << acct << "\u201D\u4E0D\u5B58\u5728\uFF0C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u6CE8\u518C\u3002\n";
         return false;
     }
     cout << "\u5BC6\u7801: "; getline(cin, pass);
-    if (customers[name].password != pass) {
+    if (customers[acct].password != pass) {
         cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n";
         return false;
     }
@@ -322,32 +332,32 @@ static bool customer_login() {
 
 // recharge —— 顾客充值
 void recharge() {
-    string name, amount_s;
+    string acct, amount_s;
     cout << "\n=== \u5145\u503C ===\n";
-    cout << "\u987E\u5BA2\u540D: "; getline(cin, name);
-    if (!customers.count(name)) {
-        cout << "\u987E\u5BA2\u201C" << name << "\u201D\u4E0D\u5B58\u5728\uFF0C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u6CE8\u518C\u3002\n";
+    cout << "\u8D26\u53F7: "; getline(cin, acct);
+    if (!customers.count(acct)) {
+        cout << "\u8D26\u53F7\u201C" << acct << "\u201D\u4E0D\u5B58\u5728\u3002\n";
         return;
     }
-    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[name].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; return; } }
+    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[acct].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; return; } }
     cout << "\u5145\u503C\u91D1\u989D: "; getline(cin, amount_s);
     double amount = stod(amount_s);
-    customers[name].balance += amount;
+    customers[acct].balance += amount;
     save_customers();
-    cout << "\u5145\u503C\u6210\u529F\uFF01\u5F53\u524D\u4F59\u989D: " << fixed << setprecision(2) << customers[name].balance << "\n";
+    cout << "\u5145\u503C\u6210\u529F\uFF01" << customers[acct].nickname << "\uFF0C\u5F53\u524D\u4F59\u989D: " << fixed << setprecision(2) << customers[acct].balance << "\n";
 }
 
 // purchase_book —— 顾客购买图书
 void purchase_book() {
     load_data();
-    string name, bid, qty_s;
+    string acct, bid, qty_s;
     cout << "\n=== \u8D2D\u4E70\u56FE\u4E66 ===\n";
-    cout << "\u987E\u5BA2\u540D: "; getline(cin, name);
-    if (!customers.count(name)) {
-        cout << "\u987E\u5BA2\u201C" << name << "\u201D\u4E0D\u5B58\u5728\uFF0C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u6CE8\u518C\u3002\n";
+    cout << "\u8D26\u53F7: "; getline(cin, acct);
+    if (!customers.count(acct)) {
+        cout << "\u8D26\u53F7\u201C" << acct << "\u201D\u4E0D\u5B58\u5728\u3002\n";
         return;
     }
-    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[name].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; return; } }
+    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[acct].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; return; } }
     cout << "\u56FE\u4E66\u7F16\u53F7: "; getline(cin, bid);
     int idx = -1;
     for (size_t i = 0; i < books.size(); i++) {
@@ -366,17 +376,18 @@ void purchase_book() {
         return;
     }
     double cost = b.price * qty;
-    if (customers[name].balance < cost) {
-        cout << "\u4F59\u989D\u4E0D\u8DB3\uFF01\u5F53\u524D\u4F59\u989D: " << fixed << setprecision(2) << customers[name].balance
+    if (customers[acct].balance < cost) {
+        cout << "\u4F59\u989D\u4E0D\u8DB3\uFF01" << customers[acct].nickname
+             << "\uFF0C\u5F53\u524D\u4F59\u989D: " << customers[acct].balance
              << "\uFF0C\u6240\u9700: " << cost << "\n";
         return;
     }
-    customers[name].balance -= cost;
+    customers[acct].balance -= cost;
     b.stock -= qty;
     save_data();
     save_customers();
-    cout << "\u8D2D\u4E70\u6210\u529F\uFF01\u201C" << b.title << "\u201D x" << qty
-         << "\uFF0C\u82B1\u8D39: " << cost << "\uFF0C\u4F59\u989D: " << customers[name].balance << "\n";
+    cout << "\u8D2D\u4E70\u6210\u529F\uFF01" << customers[acct].nickname << "\u201C" << b.title << "\u201D x" << qty
+         << "\uFF0C\u82B1\u8D39: " << cost << "\uFF0C\u4F59\u989D: " << customers[acct].balance << "\n";
 }
 
 // query_books_customer —— 顾客查询图书（支持关键字、类别、时间段）
@@ -495,10 +506,10 @@ void list_customers() {
         cout << "\n\u6682\u65E0\u987E\u5BA2\u8BB0\u5F55\u3002\n";
         return;
     }
-    cout << "\n" << left << setw(20) << "\u987E\u5BA2\u540D" << setw(10) << "\u4F59\u989D" << "\n";
-    cout << string(30, '-') << "\n";
+    cout << "\n" << left << setw(20) << "\u8D26\u53F7" << setw(22) << "\u6635\u79F0" << setw(10) << "\u4F59\u989D" << "\n";
+    cout << string(52, '-') << "\n";
     for (auto& kv : customers) {
-        cout << setw(20) << kv.second.name << fixed << setprecision(2) << kv.second.balance << "\n";
+        cout << setw(20) << kv.second.account << setw(22) << kv.second.nickname << fixed << setprecision(2) << kv.second.balance << "\n";
     }
 }
 
