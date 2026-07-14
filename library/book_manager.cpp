@@ -184,28 +184,30 @@ static string pad_cn(const string& s, int target) {
     return s + string(target - d, ' ');
 }
 
-// print_book_header —— 打印图书列表表头
+// print_book_header —— 打印图书列表表头（带分界线）
 static void print_book_header() {
-    cout << "\n" << pad_cn("\u7F16\u53F7", 12)
-         << pad_cn("\u4E66\u540D", 30)
-         << pad_cn("\u4F5C\u8005", 22)
-         << pad_cn("\u7C7B\u578B", 16)
-         << pad_cn("\u4EF7\u683C", 10)
-         << pad_cn("\u5E93\u5B58", 10)
+    string sep = "\u2502";
+    cout << "\n" << pad_cn("\u7F16\u53F7", 12) << sep
+         << pad_cn("\u4E66\u540D", 30) << sep
+         << pad_cn("\u4F5C\u8005", 22) << sep
+         << pad_cn("\u7C7B\u578B", 16) << sep
+         << pad_cn("\u4EF7\u683C", 10) << sep
+         << pad_cn("\u5E93\u5B58", 10) << sep
          << pad_cn("\u4E0A\u67B6\u65F6\u95F4", 14) << "\n";
-    cout << string(114, '-') << "\n";
+    cout << string(116, '=') << "\n";
 }
 
-// print_book —— 打印单本图书
+// print_book —— 打印单本图书（带分界线）
 static void print_book(const Book& b) {
+    string sep = "\u2502";
     string ps;
     { stringstream ss; ss << fixed << setprecision(2) << b.price; ps = ss.str(); }
-    cout << pad_cn(b.id, 12)
-         << pad_cn(b.title, 30)
-         << pad_cn(b.author, 22)
-         << pad_cn(b.category, 16)
-         << pad_cn(ps, 10)
-         << pad_cn(to_string(b.stock), 10)
+    cout << pad_cn(b.id, 12) << sep
+         << pad_cn(b.title, 30) << sep
+         << pad_cn(b.author, 22) << sep
+         << pad_cn(b.category, 16) << sep
+         << pad_cn(ps, 10) << sep
+         << pad_cn(to_string(b.stock), 10) << sep
          << pad_cn(b.added_date, 14) << "\n";
 }
 
@@ -523,11 +525,12 @@ void list_customers() {
         cout << "\n\u6682\u65E0\u987E\u5BA2\u8BB0\u5F55\u3002\n";
         return;
     }
-    cout << "\n" << pad_cn("\u8D26\u53F7", 20) << pad_cn("\u6635\u79F0", 22) << pad_cn("\u4F59\u989D", 10) << "\n";
-    cout << string(52, '-') << "\n";
+    string sep = "\u2502";
+    cout << "\n" << pad_cn("\u8D26\u53F7", 20) << sep << pad_cn("\u6635\u79F0", 22) << sep << pad_cn("\u4F59\u989D", 10) << "\n";
+    cout << string(54, '=') << "\n";
     for (auto& kv : customers) {
         string bs; { stringstream ss; ss << fixed << setprecision(2) << kv.second.balance; bs = ss.str(); }
-        cout << pad_cn(kv.second.account, 20) << pad_cn(kv.second.nickname, 22) << pad_cn(bs, 10) << "\n";
+        cout << pad_cn(kv.second.account, 20) << sep << pad_cn(kv.second.nickname, 22) << sep << pad_cn(bs, 10) << "\n";
     }
 }
 
