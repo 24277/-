@@ -1,3 +1,10 @@
+/*
+ * book_manager.cpp —— 图书信息管理系统
+ * 
+ * 功能：添加、查看、搜索、修改、删除图书
+ * 数据持久化：以 '|' 分隔的文本文件 books.txt
+ * 字段：图书编号 | 书名 | 作者 | 类型 | 价格 | 在库数量 | 上架时间
+ */
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -8,19 +15,21 @@
 
 using namespace std;
 
+// Book 结构体 —— 存储单本图书的全部信息
 struct Book {
-    string id;
-    string title;
-    string author;
-    string category;
-    double price;
-    int stock;
-    string added_date;
+    string id;          // 图书编号（唯一标识）
+    string title;       // 书名
+    string author;      // 作者
+    string category;    // 类型（如：文学、科技、历史）
+    double price;       // 价格
+    int stock;          // 在库数量
+    string added_date;  // 上架时间（YYYY-MM-DD）
 };
 
-static vector<Book> books;
-static const char* DATA_FILE = "books.txt";
+static vector<Book> books;        // 内存中的图书列表
+static const char* DATA_FILE = "books.txt";  // 数据文件路径
 
+// now_str —— 获取当前日期字符串（YYYY-MM-DD 格式）
 static string now_str() {
     time_t t = time(nullptr);
     tm* tm_ptr = localtime(&t);
@@ -29,12 +38,15 @@ static string now_str() {
     return string(buf);
 }
 
+// trim —— 去除字符串首尾空白字符
 static string trim(const string& s) {
     size_t l = s.find_first_not_of(" \t\r\n");
     size_t r = s.find_last_not_of(" \t\r\n");
     return (l == string::npos) ? "" : s.substr(l, r - l + 1);
 }
 
+// load_data —— 从 books.txt 读取数据到内存
+// 每行格式：编号|书名|作者|类型|价格|数量|上架日期
 void load_data() {
     books.clear();
     ifstream in(DATA_FILE);
@@ -60,6 +72,7 @@ void load_data() {
     }
 }
 
+// save_data —— 将内存数据写回 books.txt
 void save_data() {
     ofstream out(DATA_FILE);
     for (auto& b : books) {
@@ -73,6 +86,7 @@ void save_data() {
     }
 }
 
+// add_book —— 交互式添加新图书
 void add_book() {
     Book b;
     cout << "\n=== \u6DFB\u52A0\u56FE\u4E66 ===\n";
@@ -89,6 +103,7 @@ void add_book() {
     cout << "\u56FE\u4E66\u201C" << b.title << "\u201D\u6DFB\u52A0\u6210\u529F\uFF01\n";
 }
 
+// list_books —— 表格形式列出所有图书
 void list_books() {
     if (books.empty()) {
         cout << "\n\u6682\u65E0\u56FE\u4E66\u8BB0\u5F55\u3002\n";
@@ -114,6 +129,7 @@ void list_books() {
     }
 }
 
+// search_book —— 按书名或编号搜索图书
 void search_book() {
     string kw;
     cin.ignore();
@@ -146,6 +162,7 @@ void search_book() {
     if (!found) cout << "\u672A\u627E\u5230\u5339\u914D\u7684\u56FE\u4E66\u3002\n";
 }
 
+// delete_book —— 按编号删除图书
 void delete_book() {
     string id;
     cout << "\n\u8F93\u5165\u8981\u5220\u9664\u7684\u56FE\u4E66\u7F16\u53F7: ";
@@ -161,6 +178,7 @@ void delete_book() {
     }
 }
 
+// update_book —— 交互式修改指定编号的图书信息
 void update_book() {
     string id;
     cout << "\n\u8F93\u5165\u8981\u4FEE\u6539\u7684\u56FE\u4E66\u7F16\u53F7: ";
@@ -186,6 +204,7 @@ void update_book() {
     cout << "\u672A\u627E\u5230\u8BE5\u7F16\u53F7\u7684\u56FE\u4E66\u3002\n";
 }
 
+// main —— 主菜单循环，加载数据后进入操作选择
 int main() {
     load_data();
     int choice;
