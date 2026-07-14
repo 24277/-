@@ -59,10 +59,12 @@ if (-not $existingCommit) {
     git commit -m $CommitMessage
 }
 
-$remoteUrl = git remote get-url origin 2>$null
-if ($LASTEXITCODE -eq 0 -and $remoteUrl) {
-    $remoteName = "origin"
-    git remote -v | Select-String -Pattern "^a\s+" | ForEach-Object { $remoteName = "a" }
+$remoteName = $null
+git remote -v | Select-String -Pattern "^(a|origin)\s+" | ForEach-Object {
+    $parts = $_ -split '\s+'
+    if (-not $remoteName) { $remoteName = $parts[0] }
+}
+if ($remoteName) {
     git push "${remoteName}" HEAD
     Write-Host "Pushed to ${remoteName}"
 } else {
