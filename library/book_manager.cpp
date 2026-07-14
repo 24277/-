@@ -282,7 +282,7 @@ void list_books() {
         pause();
         return;
     }
-    string filter_cat, filter_start, filter_end, filter_kw;
+    string filter_cat, filter_start, filter_end, filter_kw, filter_author;
     bool filtering = false;
     do {
         cls();
@@ -291,6 +291,8 @@ void list_books() {
         for (auto& b : books) {
             bool match = true;
             if (!filter_kw.empty() && b.id.find(filter_kw) == string::npos && b.title.find(filter_kw) == string::npos)
+                match = false;
+            if (!filter_author.empty() && b.author.find(filter_author) == string::npos)
                 match = false;
             if (!filter_cat.empty() && b.category.find(filter_cat) == string::npos)
                 match = false;
@@ -303,23 +305,26 @@ void list_books() {
         cout << "\n\u663E\u793A " << displayed << " \u672C\uFF08\u5171 " << books.size() << " \u672C\uFF09\n";
         cout << "  1. \u5173\u952E\u8BCD\u7B5B\u9009";
         if (!filter_kw.empty()) cout << "[\u5F53\u524D:" << filter_kw << "]";
-        cout << "\n  2. \u7C7B\u522B\u7B5B\u9009";
+        cout << "\n  2. \u4F5C\u8005\u7B5B\u9009";
+        if (!filter_author.empty()) cout << "[\u5F53\u524D:" << filter_author << "]";
+        cout << "\n  3. \u7C7B\u522B\u7B5B\u9009";
         if (!filter_cat.empty()) cout << "[\u5F53\u524D:" << filter_cat << "]";
-        cout << "\n  3. \u65F6\u95F4\u6BB5\u7B5B\u9009";
+        cout << "\n  4. \u65F6\u95F4\u6BB5\u7B5B\u9009";
         if (!filter_start.empty() || !filter_end.empty()) cout << "[" << filter_start << "~" << filter_end << "]";
-        cout << "\n  4. \u91CD\u7F6E\u7B5B\u9009";
+        cout << "\n  9. \u91CD\u7F6E\u7B5B\u9009";
         cout << "\n  0. \u8FD4\u56DE\n";
         cout << "\u8BF7\u9009\u62E9: ";
         string line; getline(cin, line);
-        if (line.size() != 1 || line[0] < '0' || line[0] > '4') continue;
-        int c = line[0] - '0';
-        if (c == 0) { cls(); return; }
-        if (c == 4) { filter_kw = ""; filter_cat = ""; filter_start = ""; filter_end = ""; continue; }
-        if (c == 1) {
+        if (line.size() != 1 || line[0] < '0' || line[0] > '9') continue;
+        if (line[0] == '0') { cls(); return; }
+        if (line[0] == '9') { filter_kw = ""; filter_author = ""; filter_cat = ""; filter_start = ""; filter_end = ""; continue; }
+        if (line[0] == '1') {
             cout << "\u5173\u952E\u8BCD: "; getline(cin, filter_kw);
-        } else if (c == 2) {
+        } else if (line[0] == '2') {
+            cout << "\u4F5C\u8005: "; getline(cin, filter_author);
+        } else if (line[0] == '3') {
             cout << "\u7C7B\u522B: "; getline(cin, filter_cat);
-        } else if (c == 3) {
+        } else if (line[0] == '4') {
             cout << "\u8D77\u59CB\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_start);
             cout << "\u622A\u6B62\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_end);
         }
@@ -494,7 +499,7 @@ void query_books_customer() {
         pause();
         return;
     }
-    string filter_cat, filter_start, filter_end, filter_kw;
+    string filter_cat, filter_start, filter_end, filter_kw, filter_author;
     do {
         cls();
         print_book_header();
@@ -502,6 +507,8 @@ void query_books_customer() {
         for (auto& b : books) {
             bool match = true;
             if (!filter_kw.empty() && b.id.find(filter_kw) == string::npos && b.title.find(filter_kw) == string::npos)
+                match = false;
+            if (!filter_author.empty() && b.author.find(filter_author) == string::npos)
                 match = false;
             if (!filter_cat.empty() && b.category.find(filter_cat) == string::npos)
                 match = false;
@@ -514,21 +521,23 @@ void query_books_customer() {
         cout << "\n\u663E\u793A " << displayed << " \u672C\uFF08\u5171 " << books.size() << " \u672C\uFF09\n";
         cout << "  1. \u5173\u952E\u8BCD\u7B5B\u9009";
         if (!filter_kw.empty()) cout << "[\u5F53\u524D:" << filter_kw << "]";
-        cout << "\n  2. \u7C7B\u522B\u7B5B\u9009";
+        cout << "\n  2. \u4F5C\u8005\u7B5B\u9009";
+        if (!filter_author.empty()) cout << "[\u5F53\u524D:" << filter_author << "]";
+        cout << "\n  3. \u7C7B\u522B\u7B5B\u9009";
         if (!filter_cat.empty()) cout << "[\u5F53\u524D:" << filter_cat << "]";
-        cout << "\n  3. \u65F6\u95F4\u6BB5\u7B5B\u9009";
+        cout << "\n  4. \u65F6\u95F4\u6BB5\u7B5B\u9009";
         if (!filter_start.empty() || !filter_end.empty()) cout << "[" << filter_start << "~" << filter_end << "]";
-        cout << "\n  4. \u91CD\u7F6E\u7B5B\u9009";
+        cout << "\n  9. \u91CD\u7F6E\u7B5B\u9009";
         cout << "\n  0. \u8FD4\u56DE\n";
         cout << "\u8BF7\u9009\u62E9: ";
         string line; getline(cin, line);
-        if (line.size() != 1 || line[0] < '0' || line[0] > '4') continue;
-        int c = line[0] - '0';
-        if (c == 0) { cls(); return; }
-        if (c == 4) { filter_kw = ""; filter_cat = ""; filter_start = ""; filter_end = ""; continue; }
-        if (c == 1) { cout << "\u5173\u952E\u8BCD: "; getline(cin, filter_kw); }
-        else if (c == 2) { cout << "\u7C7B\u522B: "; getline(cin, filter_cat); }
-        else if (c == 3) { cout << "\u8D77\u59CB\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_start); cout << "\u622A\u6B62\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_end); }
+        if (line.size() != 1 || line[0] < '0') continue;
+        if (line[0] == '0') { cls(); return; }
+        if (line[0] == '9') { filter_kw = ""; filter_author = ""; filter_cat = ""; filter_start = ""; filter_end = ""; continue; }
+        if (line[0] == '1') { cout << "\u5173\u952E\u8BCD: "; getline(cin, filter_kw); }
+        else if (line[0] == '2') { cout << "\u4F5C\u8005: "; getline(cin, filter_author); }
+        else if (line[0] == '3') { cout << "\u7C7B\u522B: "; getline(cin, filter_cat); }
+        else if (line[0] == '4') { cout << "\u8D77\u59CB\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_start); cout << "\u622A\u6B62\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_end); }
     } while (true);
 }
 
