@@ -313,7 +313,7 @@ void list_books() {
         string line; getline(cin, line);
         if (line.size() != 1 || line[0] < '0' || line[0] > '4') continue;
         int c = line[0] - '0';
-        if (c == 0) { return; }
+        if (c == 0) { cls(); return; }
         if (c == 4) { filter_kw = ""; filter_cat = ""; filter_start = ""; filter_end = ""; continue; }
         if (c == 1) {
             cout << "\u5173\u952E\u8BCD: "; getline(cin, filter_kw);
@@ -524,7 +524,7 @@ void query_books_customer() {
         string line; getline(cin, line);
         if (line.size() != 1 || line[0] < '0' || line[0] > '4') continue;
         int c = line[0] - '0';
-        if (c == 0) return;
+        if (c == 0) { cls(); return; }
         if (c == 4) { filter_kw = ""; filter_cat = ""; filter_start = ""; filter_end = ""; continue; }
         if (c == 1) { cout << "\u5173\u952E\u8BCD: "; getline(cin, filter_kw); }
         else if (c == 2) { cout << "\u7C7B\u522B: "; getline(cin, filter_cat); }
