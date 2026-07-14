@@ -274,7 +274,7 @@ static void print_book(const Book& b) {
          << pad_cn(b.added_date, 14) << "\n";
 }
 
-// list_books —— 表格形式列出所有图书
+// list_books —— 交互式图书列表：显示 + 筛选
 void list_books() {
     cls();
     if (books.empty()) {
@@ -282,61 +282,48 @@ void list_books() {
         pause();
         return;
     }
-    print_book_header();
-    for (auto& b : books) {
-        print_book(b);
-    }
-    pause();
-}
-
-// search_by_category —— 按类别搜索图书
-void search_by_category() {
-    cls();
-    string cat;
-    cout << "\n\u8F93\u5165\u7C7B\u522B\u540D\u79F0\u641C\u7D22: ";
-    getline(cin, cat);
-    bool found = false;
-    for (auto& b : books) {
-        if (b.category.find(cat) != string::npos) {
-            if (!found) { print_book_header(); found = true; }
-            print_book(b);
+    string filter_cat, filter_start, filter_end, filter_kw;
+    bool filtering = false;
+    do {
+        cls();
+        print_book_header();
+        int displayed = 0;
+        for (auto& b : books) {
+            bool match = true;
+            if (!filter_kw.empty() && b.id.find(filter_kw) == string::npos && b.title.find(filter_kw) == string::npos)
+                match = false;
+            if (!filter_cat.empty() && b.category.find(filter_cat) == string::npos)
+                match = false;
+            if (!filter_start.empty() && b.added_date < filter_start)
+                match = false;
+            if (!filter_end.empty() && b.added_date > filter_end)
+                match = false;
+            if (match) { print_book(b); displayed++; }
         }
-    }
-    if (!found) cout << "\u672A\u627E\u5230\u8BE5\u7C7B\u522B\u7684\u56FE\u4E66\u3002\n";
-    pause();
-}
-
-// search_by_date_range —— 按时间段搜索图书（起始日期 ~ 截止日期）
-void search_by_date_range() {
-    cls();
-    string start, end;
-    cout << "\u8D77\u59CB\u65E5\u671F(YYYY-MM-DD): "; getline(cin, start);
-    cout << "\u622A\u6B62\u65E5\u671F(YYYY-MM-DD): "; getline(cin, end);
-    bool found = false;
-    for (auto& b : books) {
-        if (b.added_date >= start && b.added_date <= end) {
-            if (!found) { print_book_header(); found = true; }
-            print_book(b);
+        cout << "\n\u663E\u793A " << displayed << " \u672C\uFF08\u5171 " << books.size() << " \u672C\uFF09\n";
+        cout << "  1. \u5173\u952E\u8BCD\u7B5B\u9009";
+        if (!filter_kw.empty()) cout << "[\u5F53\u524D:" << filter_kw << "]";
+        cout << "\n  2. \u7C7B\u522B\u7B5B\u9009";
+        if (!filter_cat.empty()) cout << "[\u5F53\u524D:" << filter_cat << "]";
+        cout << "\n  3. \u65F6\u95F4\u6BB5\u7B5B\u9009";
+        if (!filter_start.empty() || !filter_end.empty()) cout << "[" << filter_start << "~" << filter_end << "]";
+        cout << "\n  4. \u91CD\u7F6E\u7B5B\u9009";
+        cout << "\n  0. \u8FD4\u56DE\n";
+        cout << "\u8BF7\u9009\u62E9: ";
+        string line; getline(cin, line);
+        if (line.size() != 1 || line[0] < '0' || line[0] > '4') continue;
+        int c = line[0] - '0';
+        if (c == 0) break;
+        if (c == 4) { filter_kw = ""; filter_cat = ""; filter_start = ""; filter_end = ""; continue; }
+        if (c == 1) {
+            cout << "\u5173\u952E\u8BCD: "; getline(cin, filter_kw);
+        } else if (c == 2) {
+            cout << "\u7C7B\u522B: "; getline(cin, filter_cat);
+        } else if (c == 3) {
+            cout << "\u8D77\u59CB\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_start);
+            cout << "\u622A\u6B62\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_end);
         }
-    }
-    if (!found) cout << "\u672A\u627E\u5230\u8BE5\u65F6\u95F4\u6BB5\u5185\u7684\u56FE\u4E66\u3002\n";
-    pause();
-}
-
-// search_book —— 按书名或编号搜索图书
-void search_book() {
-    cls();
-    string kw;
-    cout << "\n\u8F93\u5165\u4E66\u540D\u6216\u7F16\u53F7\u641C\u7D22: ";
-    getline(cin, kw);
-    bool found = false;
-    for (auto& b : books) {
-        if (b.id == kw || b.title.find(kw) != string::npos) {
-            if (!found) { print_book_header(); found = true; }
-            print_book(b);
-        }
-    }
-    if (!found) cout << "\u672A\u627E\u5230\u5339\u914D\u7684\u56FE\u4E66\u3002\n";
+    } while (true);
     pause();
 }
 
@@ -508,37 +495,43 @@ void query_books_customer() {
         pause();
         return;
     }
-    string line;
-    cout << "\n  1. \u5173\u952E\u8BCD\u67E5\u8BE2\n";
-    cout << "  2. \u6309\u7C7B\u522B\u67E5\u8BE2\n";
-    cout << "  3. \u6309\u65F6\u95F4\u6BB5\u67E5\u8BE2\n";
-    cout << "\u8BF7\u9009\u62E9\u67E5\u8BE2\u65B9\u5F0F: ";
-    getline(cin, line);
-    if (line.size() != 1 || line[0] < '1' || line[0] > '3') {
-        cout << "\u65E0\u6548\u9009\u62E9\u3002\n";
-        pause();
-        return;
-    }
-    int c = line[0] - '0';
-    if (c == 1) {
-        string kw;
-        cout << "\u8F93\u5165\u4E66\u540D\u6216\u7F16\u53F7: ";
-        getline(cin, kw);
-        bool found = false;
+    string filter_cat, filter_start, filter_end, filter_kw;
+    do {
+        cls();
+        print_book_header();
+        int displayed = 0;
         for (auto& b : books) {
-            if (kw.empty() || b.id.find(kw) != string::npos || b.title.find(kw) != string::npos) {
-                if (!found) { print_book_header(); found = true; }
-                print_book(b);
-            }
+            bool match = true;
+            if (!filter_kw.empty() && b.id.find(filter_kw) == string::npos && b.title.find(filter_kw) == string::npos)
+                match = false;
+            if (!filter_cat.empty() && b.category.find(filter_cat) == string::npos)
+                match = false;
+            if (!filter_start.empty() && b.added_date < filter_start)
+                match = false;
+            if (!filter_end.empty() && b.added_date > filter_end)
+                match = false;
+            if (match) { print_book(b); displayed++; }
         }
-    if (!found) cout << "\u672A\u627E\u5230\u5339\u914D\u7684\u56FE\u4E66\u3002\n";
+        cout << "\n\u663E\u793A " << displayed << " \u672C\uFF08\u5171 " << books.size() << " \u672C\uFF09\n";
+        cout << "  1. \u5173\u952E\u8BCD\u7B5B\u9009";
+        if (!filter_kw.empty()) cout << "[\u5F53\u524D:" << filter_kw << "]";
+        cout << "\n  2. \u7C7B\u522B\u7B5B\u9009";
+        if (!filter_cat.empty()) cout << "[\u5F53\u524D:" << filter_cat << "]";
+        cout << "\n  3. \u65F6\u95F4\u6BB5\u7B5B\u9009";
+        if (!filter_start.empty() || !filter_end.empty()) cout << "[" << filter_start << "~" << filter_end << "]";
+        cout << "\n  4. \u91CD\u7F6E\u7B5B\u9009";
+        cout << "\n  0. \u8FD4\u56DE\n";
+        cout << "\u8BF7\u9009\u62E9: ";
+        string line; getline(cin, line);
+        if (line.size() != 1 || line[0] < '0' || line[0] > '4') continue;
+        int c = line[0] - '0';
+        if (c == 0) break;
+        if (c == 4) { filter_kw = ""; filter_cat = ""; filter_start = ""; filter_end = ""; continue; }
+        if (c == 1) { cout << "\u5173\u952E\u8BCD: "; getline(cin, filter_kw); }
+        else if (c == 2) { cout << "\u7C7B\u522B: "; getline(cin, filter_cat); }
+        else if (c == 3) { cout << "\u8D77\u59CB\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_start); cout << "\u622A\u6B62\u65E5\u671F(YYYY-MM-DD): "; getline(cin, filter_end); }
+    } while (true);
     pause();
-    } else if (c == 2) {
-        search_by_category();
-    } else {
-        search_by_date_range();
-    }
-    if (c != 1) pause();
 }
 
 // 前向声明
@@ -554,18 +547,15 @@ void admin_book_menu() {
         cout << "========================================\n";
         cout << "  1. \u6DFB\u52A0\u56FE\u4E66\n";
         cout << "  2. \u67E5\u770B\u6240\u6709\u56FE\u4E66\n";
-        cout << "  3. \u641C\u7D22\u56FE\u4E66\n";
-        cout << "  4. \u6309\u7C7B\u522B\u641C\u7D22\n";
-        cout << "  5. \u6309\u65F6\u95F4\u6BB5\u641C\u7D22\n";
-        cout << "  6. \u4FEE\u6539\u56FE\u4E66\u4FE1\u606F\n";
-        cout << "  7. \u5220\u9664\u56FE\u4E66\n";
-        cout << "  8. \u6CE8\u518C\u987E\u5BA2\n";
-        cout << "  9. \u67E5\u770B\u6240\u6709\u987E\u5BA2\n";
+        cout << "  3. \u4FEE\u6539\u56FE\u4E66\u4FE1\u606F\n";
+        cout << "  4. \u5220\u9664\u56FE\u4E66\n";
+        cout << "  5. \u6CE8\u518C\u987E\u5BA2\n";
+        cout << "  6. \u67E5\u770B\u6240\u6709\u987E\u5BA2\n";
         cout << "  0. \u8FD4\u56DE\u4E3B\u83DC\u5355\n";
         cout << "========================================\n";
         cout << "\u8BF7\u9009\u62E9: ";
         getline(cin, line);
-        if (line.size() != 1 || line[0] < '0' || line[0] > '9') {
+        if (line.size() != 1 || line[0] < '0' || line[0] > '6') {
             cout << "\u65E0\u6548\u9009\u62E9\uFF0C\u8BF7\u91CD\u8F93\u3002\n";
             continue;
         }
@@ -574,13 +564,10 @@ void admin_book_menu() {
         switch (c) {
             case 1: add_book(); break;
             case 2: list_books(); break;
-            case 3: search_book(); break;
-            case 4: search_by_category(); break;
-            case 5: search_by_date_range(); break;
-            case 6: update_book(); break;
-            case 7: delete_book(); break;
-            case 8: register_customer(); break;
-            case 9: list_customers(); break;
+            case 3: update_book(); break;
+            case 4: delete_book(); break;
+            case 5: register_customer(); break;
+            case 6: list_customers(); break;
         }
     } while (true);
 }
