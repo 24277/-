@@ -148,11 +148,29 @@ static bool try_merge(Book& b) {
     return false;
 }
 
-// add_book —— 交互式添加新图书
+// generate_id —— 根据类别首字母自动生成编号（类别首字母 + 该类别已有数量 + 1）
+// 例如已存在 J001、J002 则新增图书返回 J003
+static string generate_id(const string& category) {
+    if (category.empty()) return "X001";
+    char prefix = (unsigned char)category[0];
+    if (prefix >= 'a' && prefix <= 'z') prefix -= 32;
+    if (!((prefix >= 'A' && prefix <= 'Z') || (prefix >= 128))) prefix = 'X';
+    int max_seq = 0;
+    for (auto& b : books) {
+        if (b.id.size() >= 4 && b.id[0] == prefix && isdigit(b.id[1]) && isdigit(b.id[2]) && isdigit(b.id[3])) {
+            int seq = stoi(b.id.substr(1, 3));
+            if (seq > max_seq) max_seq = seq;
+        }
+    }
+    stringstream ss;
+    ss << prefix << setw(3) << setfill('0') << (max_seq + 1);
+    return ss.str();
+}
+
+// add_book —— 交互式添加新图书（编号自动生成）
 void add_book() {
     Book b;
     cout << "\n=== \u6DFB\u52A0\u56FE\u4E66 ===\n";
-    cout << "\u56FE\u4E66\u7F16\u53F7: "; getline(cin, b.id);
     cout << "\u4E66\u540D: "; getline(cin, b.title);
     cout << "\u4F5C\u8005: "; getline(cin, b.author);
     cout << "\u7C7B\u578B: "; getline(cin, b.category);
@@ -163,9 +181,10 @@ void add_book() {
         save_data();
         return;
     }
+    b.id = generate_id(b.category);
     books.push_back(b);
     save_data();
-    cout << "\u56FE\u4E66\u201C" << b.title << "\u201D\u6DFB\u52A0\u6210\u529F\uFF01\n";
+    cout << "\u56FE\u4E66\u201C" << b.title << "\u201D\u6DFB\u52A0\u6210\u529F\uFF01\u7F16\u53F7: " << b.id << "\n";
 }
 
 // display_width —— 估算字符串在控制台的显示宽度（中文字符占2格）
