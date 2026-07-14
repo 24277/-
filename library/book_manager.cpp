@@ -357,15 +357,15 @@ void update_book() {
     for (auto& b : books) {
         if (b.id == id) {
             cout << "\u65B0\u4E66\u540D(\u5F53\u524D:" << b.title << "): ";
-            getline(cin, b.title);
+            { string _t; getline(cin, _t); if (!_t.empty()) b.title = _t; }
             cout << "\u65B0\u4F5C\u8005(\u5F53\u524D:" << b.author << "): ";
-            getline(cin, b.author);
+            { string _t; getline(cin, _t); if (!_t.empty()) b.author = _t; }
             cout << "\u65B0\u7C7B\u578B(\u5F53\u524D:" << b.category << "): ";
-            getline(cin, b.category);
+            { string _t; getline(cin, _t); if (!_t.empty()) b.category = _t; }
             cout << "\u65B0\u4EF7\u683C(\u5F53\u524D:" << b.price << "): ";
-            { string _t; getline(cin, _t); b.price = stod(_t); }
+            { string _t; getline(cin, _t); if (!_t.empty()) b.price = stod(_t); }
             cout << "\u65B0\u5E93\u5B58(\u5F53\u524D:" << b.stock << "): ";
-            { string _t; getline(cin, _t); b.stock = stoi(_t); }
+            { string _t; getline(cin, _t); if (!_t.empty()) b.stock = stoi(_t); }
             save_data();
             cls();
             cout << "\u56FE\u4E66\u4FEE\u6539\u6210\u529F\u3002\n";
