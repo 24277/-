@@ -21,7 +21,13 @@ if (-not (Test-Path $roundFile)) {
     exit 1
 }
 
-$roundData = Get-Content -Raw -LiteralPath $roundFile | ConvertFrom-Json
+$roundRaw = Get-Content -Raw -LiteralPath $roundFile
+try {
+    $roundData = $roundRaw | ConvertFrom-Json
+} catch {
+    Write-Error "Invalid JSON in $roundFile"
+    exit 1
+}
 
 if ($CommitMessage -eq "") {
     $CommitMessage = "feat: auto sync round $RoundNum"
@@ -29,17 +35,22 @@ if ($CommitMessage -eq "") {
 
 $jsonlFile = "AI开发审核_曾天乐_图书信息管理系统.jsonl"
 
-$jsonlEntry = @{
-    round_id      = $roundData.round_id
-    prompt_content = $roundData.prompt_content
-    modify_diff   = $roundData.modify_diff
-    commit_hash   = $roundData.commit_hash
-    modify_time   = $roundData.modify_time
-    agent_type    = $roundData.agent_type
-    dev_language  = $roundData.dev_language
-} | ConvertTo-Json -Compress
+$existingIds = if (Test-Path $jsonlFile) { Get-Content -LiteralPath $jsonlFile | ForEach-Object { try { ($_ | ConvertFrom-Json).round_id } catch {} } } else { @() }
+if ($roundData.round_id -in $existingIds) {
+    Write-Warning "round_id $($roundData.round_id) already exists in JSONL, skipping append."
+} else {
+    $jsonlEntry = @{
+        round_id      = $roundData.round_id
+        prompt_content = $roundData.prompt_content
+        modify_diff   = $roundData.modify_diff
+        commit_hash   = $roundData.commit_hash
+        modify_time   = $roundData.modify_time
+        agent_type    = $roundData.agent_type
+        dev_language  = $roundData.dev_language
+    } | ConvertTo-Json -Compress
 
-Add-Content -LiteralPath $jsonlFile -Value $jsonlEntry
+    Add-Content -LiteralPath $jsonlFile -Value $jsonlEntry
+}
 
 $hashPrefix = $roundData.commit_hash.Substring(0, [Math]::Min(7, $roundData.commit_hash.Length))
 $existingCommit = git log --oneline --all 2>$null | Select-String -Pattern "^$hashPrefix" -SimpleMatch
