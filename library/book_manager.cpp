@@ -14,6 +14,7 @@
 #include <ctime>
 #include <cmath>
 #include <map>
+#include <windows.h>
 
 using namespace std;
 
@@ -503,6 +504,7 @@ void list_customers() {
 
 // main —— 主菜单：选择管理员登录或顾客入口
 int main() {
+    SetConsoleOutputCP(CP_UTF8);
     load_data();
     load_customers();
     string line;
