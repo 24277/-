@@ -165,12 +165,8 @@ void add_book() {
     cout << "\u56FE\u4E66\u201C" << b.title << "\u201D\u6DFB\u52A0\u6210\u529F\uFF01\n";
 }
 
-// list_books —— 表格形式列出所有图书
-void list_books() {
-    if (books.empty()) {
-        cout << "\n\u6682\u65E0\u56FE\u4E66\u8BB0\u5F55\u3002\n";
-        return;
-    }
+// print_book_header —— 打印图书列表表头
+static void print_book_header() {
     cout << "\n" << left
          << setw(12) << "\u7F16\u53F7"
          << setw(28) << "\u4E66\u540D"
@@ -180,15 +176,59 @@ void list_books() {
          << setw(10) << "\u5E93\u5B58"
          << setw(14) << "\u4E0A\u67B6\u65F6\u95F4" << "\n";
     cout << string(102, '-') << "\n";
-    for (auto& b : books) {
-        cout << setw(12) << b.id
-             << setw(28) << b.title
-             << setw(16) << b.author
-             << setw(14) << b.category
-             << setw(8) << fixed << setprecision(2) << b.price
-             << setw(10) << b.stock
-             << setw(14) << b.added_date << "\n";
+}
+
+// print_book —— 打印单本图书
+static void print_book(const Book& b) {
+    cout << setw(12) << b.id
+         << setw(28) << b.title
+         << setw(16) << b.author
+         << setw(14) << b.category
+         << setw(8) << fixed << setprecision(2) << b.price
+         << setw(10) << b.stock
+         << setw(14) << b.added_date << "\n";
+}
+
+// list_books —— 表格形式列出所有图书
+void list_books() {
+    if (books.empty()) {
+        cout << "\n\u6682\u65E0\u56FE\u4E66\u8BB0\u5F55\u3002\n";
+        return;
     }
+    print_book_header();
+    for (auto& b : books) {
+        print_book(b);
+    }
+}
+
+// search_by_category —— 按类别搜索图书
+void search_by_category() {
+    string cat;
+    cout << "\n\u8F93\u5165\u7C7B\u522B\u540D\u79F0\u641C\u7D22: ";
+    getline(cin, cat);
+    bool found = false;
+    for (auto& b : books) {
+        if (b.category.find(cat) != string::npos) {
+            if (!found) { print_book_header(); found = true; }
+            print_book(b);
+        }
+    }
+    if (!found) cout << "\u672A\u627E\u5230\u8BE5\u7C7B\u522B\u7684\u56FE\u4E66\u3002\n";
+}
+
+// search_by_date_range —— 按时间段搜索图书（起始日期 ~ 截止日期）
+void search_by_date_range() {
+    string start, end;
+    cout << "\u8D77\u59CB\u65E5\u671F(YYYY-MM-DD): "; getline(cin, start);
+    cout << "\u622A\u6B62\u65E5\u671F(YYYY-MM-DD): "; getline(cin, end);
+    bool found = false;
+    for (auto& b : books) {
+        if (b.added_date >= start && b.added_date <= end) {
+            if (!found) { print_book_header(); found = true; }
+            print_book(b);
+        }
+    }
+    if (!found) cout << "\u672A\u627E\u5230\u8BE5\u65F6\u95F4\u6BB5\u5185\u7684\u56FE\u4E66\u3002\n";
 }
 
 // search_book —— 按书名或编号搜索图书
@@ -199,25 +239,8 @@ void search_book() {
     bool found = false;
     for (auto& b : books) {
         if (b.id == kw || b.title.find(kw) != string::npos) {
-            if (!found) {
-                cout << "\n" << left
-                     << setw(12) << "\u7F16\u53F7"
-                     << setw(28) << "\u4E66\u540D"
-                     << setw(16) << "\u4F5C\u8005"
-                     << setw(14) << "\u7C7B\u578B"
-                     << setw(8) << "\u4EF7\u683C"
-                     << setw(10) << "\u5E93\u5B58"
-                     << setw(14) << "\u4E0A\u67B6\u65F6\u95F4" << "\n";
-                cout << string(102, '-') << "\n";
-                found = true;
-            }
-            cout << setw(12) << b.id
-                 << setw(28) << b.title
-                 << setw(16) << b.author
-                 << setw(14) << b.category
-                 << setw(8) << fixed << setprecision(2) << b.price
-                 << setw(10) << b.stock
-                 << setw(14) << b.added_date << "\n";
+            if (!found) { print_book_header(); found = true; }
+            print_book(b);
         }
     }
     if (!found) cout << "\u672A\u627E\u5230\u5339\u914D\u7684\u56FE\u4E66\u3002\n";
@@ -355,35 +378,40 @@ void purchase_book() {
          << "\uFF0C\u82B1\u8D39: " << cost << "\uFF0C\u4F59\u989D: " << customers[name].balance << "\n";
 }
 
-// query_books_customer —— 顾客查询图书（仅查看，支持按书名/编号搜索）
+// query_books_customer —— 顾客查询图书（支持关键字、类别、时间段）
 void query_books_customer() {
     load_data();
     if (books.empty()) {
         cout << "\n\u6682\u65E0\u56FE\u4E66\u8BB0\u5F55\u3002\n";
         return;
     }
-    string kw;
-    cout << "\n\u8F93\u5165\u4E66\u540D\u6216\u7F16\u53F7\u67E5\u8BE2\uFF08\u76F4\u63A5\u56DE\u8F66\u67E5\u770B\u5168\u90E8\uFF09: ";
-    getline(cin, kw);
-    cout << "\n" << left
-         << setw(12) << "\u7F16\u53F7"
-         << setw(28) << "\u4E66\u540D"
-         << setw(16) << "\u4F5C\u8005"
-         << setw(14) << "\u7C7B\u578B"
-         << setw(8) << "\u4EF7\u683C"
-         << setw(10) << "\u5E93\u5B58"
-         << setw(14) << "\u4E0A\u67B6\u65F6\u95F4" << "\n";
-    cout << string(102, '-') << "\n";
-    for (auto& b : books) {
-        if (kw.empty() || b.id.find(kw) != string::npos || b.title.find(kw) != string::npos) {
-            cout << setw(12) << b.id
-                 << setw(28) << b.title
-                 << setw(16) << b.author
-                 << setw(14) << b.category
-                 << setw(8) << fixed << setprecision(2) << b.price
-                 << setw(10) << b.stock
-                 << setw(14) << b.added_date << "\n";
+    string line;
+    cout << "\n  1. \u5173\u952E\u8BCD\u67E5\u8BE2\n";
+    cout << "  2. \u6309\u7C7B\u522B\u67E5\u8BE2\n";
+    cout << "  3. \u6309\u65F6\u95F4\u6BB5\u67E5\u8BE2\n";
+    cout << "\u8BF7\u9009\u62E9\u67E5\u8BE2\u65B9\u5F0F: ";
+    getline(cin, line);
+    if (line.size() != 1 || line[0] < '1' || line[0] > '3') {
+        cout << "\u65E0\u6548\u9009\u62E9\u3002\n";
+        return;
+    }
+    int c = line[0] - '0';
+    if (c == 1) {
+        string kw;
+        cout << "\u8F93\u5165\u4E66\u540D\u6216\u7F16\u53F7: ";
+        getline(cin, kw);
+        bool found = false;
+        for (auto& b : books) {
+            if (kw.empty() || b.id.find(kw) != string::npos || b.title.find(kw) != string::npos) {
+                if (!found) { print_book_header(); found = true; }
+                print_book(b);
+            }
         }
+        if (!found) cout << "\u672A\u627E\u5230\u5339\u914D\u7684\u56FE\u4E66\u3002\n";
+    } else if (c == 2) {
+        search_by_category();
+    } else {
+        search_by_date_range();
     }
 }
 
@@ -401,15 +429,17 @@ void admin_book_menu() {
         cout << "  1. \u6DFB\u52A0\u56FE\u4E66\n";
         cout << "  2. \u67E5\u770B\u6240\u6709\u56FE\u4E66\n";
         cout << "  3. \u641C\u7D22\u56FE\u4E66\n";
-        cout << "  4. \u4FEE\u6539\u56FE\u4E66\u4FE1\u606F\n";
-        cout << "  5. \u5220\u9664\u56FE\u4E66\n";
-        cout << "  6. \u6CE8\u518C\u987E\u5BA2\n";
-        cout << "  7. \u67E5\u770B\u6240\u6709\u987E\u5BA2\n";
+        cout << "  4. \u6309\u7C7B\u522B\u641C\u7D22\n";
+        cout << "  5. \u6309\u65F6\u95F4\u6BB5\u641C\u7D22\n";
+        cout << "  6. \u4FEE\u6539\u56FE\u4E66\u4FE1\u606F\n";
+        cout << "  7. \u5220\u9664\u56FE\u4E66\n";
+        cout << "  8. \u6CE8\u518C\u987E\u5BA2\n";
+        cout << "  9. \u67E5\u770B\u6240\u6709\u987E\u5BA2\n";
         cout << "  0. \u8FD4\u56DE\u4E3B\u83DC\u5355\n";
         cout << "========================================\n";
         cout << "\u8BF7\u9009\u62E9: ";
         getline(cin, line);
-        if (line.size() != 1 || line[0] < '0' || line[0] > '7') {
+        if (line.size() != 1 || line[0] < '0' || line[0] > '9') {
             cout << "\u65E0\u6548\u9009\u62E9\uFF0C\u8BF7\u91CD\u8F93\u3002\n";
             continue;
         }
@@ -419,10 +449,12 @@ void admin_book_menu() {
             case 1: add_book(); break;
             case 2: list_books(); break;
             case 3: search_book(); break;
-            case 4: update_book(); break;
-            case 5: delete_book(); break;
-            case 6: register_customer(); break;
-            case 7: list_customers(); break;
+            case 4: search_by_category(); break;
+            case 5: search_by_date_range(); break;
+            case 6: update_book(); break;
+            case 7: delete_book(); break;
+            case 8: register_customer(); break;
+            case 9: list_customers(); break;
         }
     } while (true);
 }
