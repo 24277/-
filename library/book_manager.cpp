@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <ctime>
+#include <cmath>
 
 using namespace std;
 
@@ -86,6 +87,21 @@ void save_data() {
     }
 }
 
+// is_duplicate —— 判断图书是否与现有图书完全重复（书名、作者、价格、上架日期完全一致）
+// 若重复则累加库存并返回 true
+static bool try_merge(Book& b) {
+    for (auto& exist : books) {
+        if (exist.title == b.title && exist.author == b.author
+            && fabs(exist.price - b.price) < 0.001 && exist.added_date == b.added_date) {
+            exist.stock += b.stock;
+            cout << "\u8BE5\u56FE\u4E66\u4E0E\u7F16\u53F7 " << exist.id
+                 << " \u5B8C\u5168\u91CD\u590D\uFF0C\u5DF2\u5408\u5E76\uFF0C\u5F53\u524D\u5E93\u5B58: " << exist.stock << "\n";
+            return true;
+        }
+    }
+    return false;
+}
+
 // add_book —— 交互式添加新图书
 void add_book() {
     Book b;
@@ -97,6 +113,10 @@ void add_book() {
     cout << "\u4EF7\u683C: "; { string _t; getline(cin, _t); b.price = stod(_t); }
     cout << "\u5728\u5E93\u6570\u91CF: "; { string _t; getline(cin, _t); b.stock = stoi(_t); }
     b.added_date = now_str();
+    if (try_merge(b)) {
+        save_data();
+        return;
+    }
     books.push_back(b);
     save_data();
     cout << "\u56FE\u4E66\u201C" << b.title << "\u201D\u6DFB\u52A0\u6210\u529F\uFF01\n";
