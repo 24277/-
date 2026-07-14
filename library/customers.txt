@@ -1,2 +1,2 @@
-zhangsan|123456|张三|0
 lisi|abcdef|李四|0
+zhangsan|123456|张三|30

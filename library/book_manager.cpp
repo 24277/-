@@ -168,28 +168,45 @@ void add_book() {
     cout << "\u56FE\u4E66\u201C" << b.title << "\u201D\u6DFB\u52A0\u6210\u529F\uFF01\n";
 }
 
+// display_width —— 估算字符串在控制台的显示宽度（中文字符占2格）
+static int display_w(const string& s) {
+    int w = 0;
+    for (unsigned char c : s) {
+        if (c >= 0x80) { w += 2; } else { w += 1; }
+    }
+    return w;
+}
+
+// pad_cn —— 按显示宽度填充空格对齐
+static string pad_cn(const string& s, int target) {
+    int d = display_w(s);
+    if (d >= target) return s + " ";
+    return s + string(target - d, ' ');
+}
+
 // print_book_header —— 打印图书列表表头
 static void print_book_header() {
-    cout << "\n" << left
-         << setw(12) << "\u7F16\u53F7"
-         << setw(28) << "\u4E66\u540D"
-         << setw(16) << "\u4F5C\u8005"
-         << setw(14) << "\u7C7B\u578B"
-         << setw(8) << "\u4EF7\u683C"
-         << setw(10) << "\u5E93\u5B58"
-         << setw(14) << "\u4E0A\u67B6\u65F6\u95F4" << "\n";
-    cout << string(102, '-') << "\n";
+    cout << "\n" << pad_cn("\u7F16\u53F7", 12)
+         << pad_cn("\u4E66\u540D", 30)
+         << pad_cn("\u4F5C\u8005", 22)
+         << pad_cn("\u7C7B\u578B", 16)
+         << pad_cn("\u4EF7\u683C", 10)
+         << pad_cn("\u5E93\u5B58", 10)
+         << pad_cn("\u4E0A\u67B6\u65F6\u95F4", 14) << "\n";
+    cout << string(114, '-') << "\n";
 }
 
 // print_book —— 打印单本图书
 static void print_book(const Book& b) {
-    cout << setw(12) << b.id
-         << setw(28) << b.title
-         << setw(16) << b.author
-         << setw(14) << b.category
-         << setw(8) << fixed << setprecision(2) << b.price
-         << setw(10) << b.stock
-         << setw(14) << b.added_date << "\n";
+    string ps;
+    { stringstream ss; ss << fixed << setprecision(2) << b.price; ps = ss.str(); }
+    cout << pad_cn(b.id, 12)
+         << pad_cn(b.title, 30)
+         << pad_cn(b.author, 22)
+         << pad_cn(b.category, 16)
+         << pad_cn(ps, 10)
+         << pad_cn(to_string(b.stock), 10)
+         << pad_cn(b.added_date, 14) << "\n";
 }
 
 // list_books —— 表格形式列出所有图书
@@ -506,10 +523,11 @@ void list_customers() {
         cout << "\n\u6682\u65E0\u987E\u5BA2\u8BB0\u5F55\u3002\n";
         return;
     }
-    cout << "\n" << left << setw(20) << "\u8D26\u53F7" << setw(22) << "\u6635\u79F0" << setw(10) << "\u4F59\u989D" << "\n";
+    cout << "\n" << pad_cn("\u8D26\u53F7", 20) << pad_cn("\u6635\u79F0", 22) << pad_cn("\u4F59\u989D", 10) << "\n";
     cout << string(52, '-') << "\n";
     for (auto& kv : customers) {
-        cout << setw(20) << kv.second.account << setw(22) << kv.second.nickname << fixed << setprecision(2) << kv.second.balance << "\n";
+        string bs; { stringstream ss; ss << fixed << setprecision(2) << kv.second.balance; bs = ss.str(); }
+        cout << pad_cn(kv.second.account, 20) << pad_cn(kv.second.nickname, 22) << pad_cn(bs, 10) << "\n";
     }
 }
 
