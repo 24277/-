@@ -41,16 +41,19 @@ $jsonlEntry = @{
 
 Add-Content -LiteralPath $jsonlFile -Value $jsonlEntry
 
-$existingCommit = git log --oneline --all | Select-String -Pattern "^$($roundData.commit_hash)" -SimpleMatch
+$hashPrefix = $roundData.commit_hash.Substring(0, [Math]::Min(7, $roundData.commit_hash.Length))
+$existingCommit = git log --oneline --all 2>$null | Select-String -Pattern "^$hashPrefix" -SimpleMatch
 if (-not $existingCommit) {
     git add "round/round${RoundNum}.json" $jsonlFile
     git commit -m $CommitMessage
 }
 
 $remoteUrl = git remote get-url origin 2>$null
-if ($remoteUrl) {
-    git push origin HEAD
-    Write-Host "Pushed to $remoteUrl"
+if ($LASTEXITCODE -eq 0 -and $remoteUrl) {
+    $remoteName = "origin"
+    git remote -v | Select-String -Pattern "^a\s+" | ForEach-Object { $remoteName = "a" }
+    git push "${remoteName}" HEAD
+    Write-Host "Pushed to ${remoteName}"
 } else {
     Write-Warning "No remote configured; commit created locally only."
 }
