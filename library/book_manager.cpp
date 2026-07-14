@@ -46,6 +46,8 @@ static const char* CUSTOMER_FILE = "customers.txt"; // 顾客数据文件路径
 static const string ADMIN_NAME = "admin";
 static const string ADMIN_PASS = "123456";
 
+static string logged_customer; // 当前登录的顾客账号（空表示未登录）
+
 // now_str —— 获取当前日期字符串（YYYY-MM-DD 格式）
 static string now_str() {
     time_t t = time(nullptr);
@@ -418,41 +420,33 @@ static bool customer_login() {
         cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n";
         return false;
     }
+    logged_customer = acct;
+    cout << "\u6B22\u8FCE\uFF0C" << customers[acct].nickname << "\uFF01\n";
     return true;
 }
 
-// recharge —— 顾客充值
+// recharge —— 顾客充值（使用当前登录账号）
 void recharge() {
-    string acct, amount_s;
+    string amount_s;
     cout << "\n=== \u5145\u503C ===\n";
-    cout << "\u8D26\u53F7: "; getline(cin, acct);
-    if (!customers.count(acct)) {
-        cout << "\u8D26\u53F7\u201C" << acct << "\u201D\u4E0D\u5B58\u5728\u3002\n";
-        pause();
-        return;
-    }
-    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[acct].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; pause(); return; } }
+    cout << "\u5F53\u524D\u8D26\u53F7: " << logged_customer << " (" << customers[logged_customer].nickname << ")\n";
+    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[logged_customer].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; pause(); return; } }
     cout << "\u5145\u503C\u91D1\u989D: "; getline(cin, amount_s);
     double amount = stod(amount_s);
-    customers[acct].balance += amount;
+    customers[logged_customer].balance += amount;
     save_customers();
     cls();
-    cout << "\u5145\u503C\u6210\u529F\uFF01" << customers[acct].nickname << "\uFF0C\u5F53\u524D\u4F59\u989D: " << fixed << setprecision(2) << customers[acct].balance << "\n";
+    cout << "\u5145\u503C\u6210\u529F\uFF01" << customers[logged_customer].nickname << "\uFF0C\u5F53\u524D\u4F59\u989D: " << fixed << setprecision(2) << customers[logged_customer].balance << "\n";
     pause();
 }
 
-// purchase_book —— 顾客购买图书
+// purchase_book —— 顾客购买图书（使用当前登录账号）
 void purchase_book() {
     load_data();
-    string acct, bid, qty_s;
+    string bid, qty_s;
     cout << "\n=== \u8D2D\u4E70\u56FE\u4E66 ===\n";
-    cout << "\u8D26\u53F7: "; getline(cin, acct);
-    if (!customers.count(acct)) {
-        cout << "\u8D26\u53F7\u201C" << acct << "\u201D\u4E0D\u5B58\u5728\u3002\n";
-        pause();
-        return;
-    }
-    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[acct].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; pause(); return; } }
+    cout << "\u5F53\u524D\u8D26\u53F7: " << logged_customer << " (" << customers[logged_customer].nickname << ")\n";
+    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[logged_customer].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; pause(); return; } }
     cout << "\u56FE\u4E66\u7F16\u53F7: "; getline(cin, bid);
     int idx = -1;
     for (size_t i = 0; i < books.size(); i++) {
@@ -473,20 +467,20 @@ void purchase_book() {
         return;
     }
     double cost = b.price * qty;
-    if (customers[acct].balance < cost) {
-        cout << "\u4F59\u989D\u4E0D\u8DB3\uFF01" << customers[acct].nickname
-             << "\uFF0C\u5F53\u524D\u4F59\u989D: " << customers[acct].balance
+    if (customers[logged_customer].balance < cost) {
+        cout << "\u4F59\u989D\u4E0D\u8DB3\uFF01" << customers[logged_customer].nickname
+             << "\uFF0C\u5F53\u524D\u4F59\u989D: " << customers[logged_customer].balance
              << "\uFF0C\u6240\u9700: " << cost << "\n";
         pause();
         return;
     }
-    customers[acct].balance -= cost;
+    customers[logged_customer].balance -= cost;
     b.stock -= qty;
     save_data();
     save_customers();
     cls();
-    cout << "\u8D2D\u4E70\u6210\u529F\uFF01" << customers[acct].nickname << "\u201C" << b.title << "\u201D x" << qty
-         << "\uFF0C\u82B1\u8D39: " << cost << "\uFF0C\u4F59\u989D: " << customers[acct].balance << "\n";
+    cout << "\u8D2D\u4E70\u6210\u529F\uFF01" << customers[logged_customer].nickname << "\u201C" << b.title << "\u201D x" << qty
+         << "\uFF0C\u82B1\u8D39: " << cost << "\uFF0C\u4F59\u989D: " << customers[logged_customer].balance << "\n";
     pause();
 }
 
