@@ -21,7 +21,7 @@ if (-not (Test-Path $roundFile)) {
     exit 1
 }
 
-$roundRaw = Get-Content -Raw -LiteralPath $roundFile
+$roundRaw = [System.IO.File]::ReadAllText($roundFile)
 try {
     $roundData = $roundRaw | ConvertFrom-Json
 } catch {
