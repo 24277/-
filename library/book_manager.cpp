@@ -550,6 +550,7 @@ void register_customer();
 void admin_book_menu() {
     string line;
     do {
+        cls();
         cout << "\n========================================\n";
         cout << "      \u7BA1\u7406\u5458\u56FE\u4E66\u7BA1\u7406\n";
         cout << "========================================\n";
@@ -583,8 +584,10 @@ void admin_book_menu() {
 // customer_menu —— 顾客子菜单（查书、充值、购买）
 void customer_menu() {
     if (!customer_login()) return;
+    cls();
     string line;
     do {
+        cls();
         cout << "\n========================================\n";
         cout << "      \u987E\u5BA2\u670D\u52A1\u7CFB\u7EDF\n";
         cout << "========================================\n";
@@ -661,6 +664,7 @@ int main() {
             cout << "\u8D26\u53F7: "; getline(cin, name);
             cout << "\u5BC6\u7801: "; getline(cin, pass);
             if (name == ADMIN_NAME && pass == ADMIN_PASS) {
+                cls();
                 admin_book_menu();
             } else {
                 cout << "\u8D26\u53F7\u6216\u5BC6\u7801\u9519\u8BEF\uFF01\n";
