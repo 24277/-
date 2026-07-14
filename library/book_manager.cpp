@@ -67,6 +67,12 @@ static void cls() {
     system("cls");
 }
 
+// pause —— 提示用户按任意键继续
+static void pause() {
+    cout << "\n\u8BF7\u6309\u4EFB\u610F\u952E\u7EE7\u7EED...";
+    cin.get();
+}
+
 // load_data —— 从 books.txt 读取数据到内存
 // 每行格式：编号|书名|作者|类型|价格|数量|上架日期
 void load_data() {
@@ -145,8 +151,10 @@ static bool try_merge(Book& b) {
         if (exist.title == b.title && exist.author == b.author
             && fabs(exist.price - b.price) < 0.001 && exist.added_date == b.added_date) {
             exist.stock += b.stock;
+            cls();
             cout << "\u8BE5\u56FE\u4E66\u4E0E\u7F16\u53F7 " << exist.id
                  << " \u5B8C\u5168\u91CD\u590D\uFF0C\u5DF2\u5408\u5E76\uFF0C\u5F53\u524D\u5E93\u5B58: " << exist.stock << "\n";
+            pause();
             return true;
         }
     }
@@ -219,6 +227,7 @@ void add_book() {
     save_data();
     cls();
     cout << "\u56FE\u4E66\u201C" << b.title << "\u201D\u6DFB\u52A0\u6210\u529F\uFF01\u7F16\u53F7: " << b.id << "\n";
+    pause();
 }
 
 // display_width —— 估算字符串在控制台的显示宽度（中文字符占2格）
@@ -269,12 +278,14 @@ void list_books() {
     cls();
     if (books.empty()) {
         cout << "\n\u6682\u65E0\u56FE\u4E66\u8BB0\u5F55\u3002\n";
+        pause();
         return;
     }
     print_book_header();
     for (auto& b : books) {
         print_book(b);
     }
+    pause();
 }
 
 // search_by_category —— 按类别搜索图书
@@ -291,6 +302,7 @@ void search_by_category() {
         }
     }
     if (!found) cout << "\u672A\u627E\u5230\u8BE5\u7C7B\u522B\u7684\u56FE\u4E66\u3002\n";
+    pause();
 }
 
 // search_by_date_range —— 按时间段搜索图书（起始日期 ~ 截止日期）
@@ -307,6 +319,7 @@ void search_by_date_range() {
         }
     }
     if (!found) cout << "\u672A\u627E\u5230\u8BE5\u65F6\u95F4\u6BB5\u5185\u7684\u56FE\u4E66\u3002\n";
+    pause();
 }
 
 // search_book —— 按书名或编号搜索图书
@@ -323,6 +336,7 @@ void search_book() {
         }
     }
     if (!found) cout << "\u672A\u627E\u5230\u5339\u914D\u7684\u56FE\u4E66\u3002\n";
+    pause();
 }
 
 // delete_book —— 按编号删除图书
@@ -340,6 +354,7 @@ void delete_book() {
     } else {
         cout << "\u672A\u627E\u5230\u7F16\u53F7\u4E3A " << id << " \u7684\u56FE\u4E66\u3002\n";
     }
+    pause();
 }
 
 // update_book —— 交互式修改指定编号的图书信息
@@ -362,10 +377,12 @@ void update_book() {
             save_data();
             cls();
             cout << "\u56FE\u4E66\u4FEE\u6539\u6210\u529F\u3002\n";
+            pause();
             return;
         }
     }
     cout << "\u672A\u627E\u5230\u8BE5\u7F16\u53F7\u7684\u56FE\u4E66\u3002\n";
+    pause();
 }
 
 // register_customer —— 注册新顾客（管理员操作）
@@ -375,11 +392,13 @@ void register_customer() {
     cout << "\u8D26\u53F7\uFF08\u5B57\u6BCD+\u6570\u5B57\uFF09: "; getline(cin, c.account);
     if (customers.count(c.account)) {
         cout << "\u8BE5\u8D26\u53F7\u5DF2\u5B58\u5728\u3002\n";
+        pause();
         return;
     }
     for (char ch : c.account) {
         if (!isalnum(ch)) {
             cout << "\u8D26\u53F7\u53EA\u80FD\u5305\u542B\u5B57\u6BCD\u548C\u6570\u5B57\uFF01\n";
+            pause();
             return;
         }
     }
@@ -391,6 +410,7 @@ void register_customer() {
     save_customers();
     cls();
     cout << "\u987E\u5BA2\u201C" << c.nickname << "\u201D\u6CE8\u518C\u6210\u529F\uFF01\n";
+    pause();
 }
 
 // customer_login —— 顾客登录，返回 true 表示登录成功
@@ -416,15 +436,17 @@ void recharge() {
     cout << "\u8D26\u53F7: "; getline(cin, acct);
     if (!customers.count(acct)) {
         cout << "\u8D26\u53F7\u201C" << acct << "\u201D\u4E0D\u5B58\u5728\u3002\n";
+        pause();
         return;
     }
-    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[acct].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; return; } }
+    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[acct].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; pause(); return; } }
     cout << "\u5145\u503C\u91D1\u989D: "; getline(cin, amount_s);
     double amount = stod(amount_s);
     customers[acct].balance += amount;
     save_customers();
     cls();
     cout << "\u5145\u503C\u6210\u529F\uFF01" << customers[acct].nickname << "\uFF0C\u5F53\u524D\u4F59\u989D: " << fixed << setprecision(2) << customers[acct].balance << "\n";
+    pause();
 }
 
 // purchase_book —— 顾客购买图书
@@ -435,9 +457,10 @@ void purchase_book() {
     cout << "\u8D26\u53F7: "; getline(cin, acct);
     if (!customers.count(acct)) {
         cout << "\u8D26\u53F7\u201C" << acct << "\u201D\u4E0D\u5B58\u5728\u3002\n";
+        pause();
         return;
     }
-    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[acct].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; return; } }
+    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[acct].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; pause(); return; } }
     cout << "\u56FE\u4E66\u7F16\u53F7: "; getline(cin, bid);
     int idx = -1;
     for (size_t i = 0; i < books.size(); i++) {
@@ -445,14 +468,16 @@ void purchase_book() {
     }
     if (idx == -1) {
         cout << "\u672A\u627E\u5230\u7F16\u53F7\u4E3A " << bid << " \u7684\u56FE\u4E66\u3002\n";
+        pause();
         return;
     }
     Book& b = books[idx];
     cout << "\u8D2D\u4E70\u6570\u91CF: "; getline(cin, qty_s);
     int qty = stoi(qty_s);
-    if (qty <= 0) { cout << "\u6570\u91CF\u65E0\u6548\u3002\n"; return; }
+    if (qty <= 0) { cout << "\u6570\u91CF\u65E0\u6548\u3002\n"; pause(); return; }
     if (b.stock < qty) {
         cout << "\u5E93\u5B58\u4E0D\u8DB3\uFF0C\u5F53\u524D\u5E93\u5B58: " << b.stock << "\n";
+        pause();
         return;
     }
     double cost = b.price * qty;
@@ -460,6 +485,7 @@ void purchase_book() {
         cout << "\u4F59\u989D\u4E0D\u8DB3\uFF01" << customers[acct].nickname
              << "\uFF0C\u5F53\u524D\u4F59\u989D: " << customers[acct].balance
              << "\uFF0C\u6240\u9700: " << cost << "\n";
+        pause();
         return;
     }
     customers[acct].balance -= cost;
@@ -469,6 +495,7 @@ void purchase_book() {
     cls();
     cout << "\u8D2D\u4E70\u6210\u529F\uFF01" << customers[acct].nickname << "\u201C" << b.title << "\u201D x" << qty
          << "\uFF0C\u82B1\u8D39: " << cost << "\uFF0C\u4F59\u989D: " << customers[acct].balance << "\n";
+    pause();
 }
 
 // query_books_customer —— 顾客查询图书（支持关键字、类别、时间段）
@@ -477,6 +504,7 @@ void query_books_customer() {
     cls();
     if (books.empty()) {
         cout << "\n\u6682\u65E0\u56FE\u4E66\u8BB0\u5F55\u3002\n";
+        pause();
         return;
     }
     string line;
@@ -487,6 +515,7 @@ void query_books_customer() {
     getline(cin, line);
     if (line.size() != 1 || line[0] < '1' || line[0] > '3') {
         cout << "\u65E0\u6548\u9009\u62E9\u3002\n";
+        pause();
         return;
     }
     int c = line[0] - '0';
@@ -501,12 +530,14 @@ void query_books_customer() {
                 print_book(b);
             }
         }
-        if (!found) cout << "\u672A\u627E\u5230\u5339\u914D\u7684\u56FE\u4E66\u3002\n";
+    if (!found) cout << "\u672A\u627E\u5230\u5339\u914D\u7684\u56FE\u4E66\u3002\n";
+    pause();
     } else if (c == 2) {
         search_by_category();
     } else {
         search_by_date_range();
     }
+    if (c != 1) pause();
 }
 
 // 前向声明
@@ -587,6 +618,7 @@ void list_customers() {
     cls();
     if (customers.empty()) {
         cout << "\n\u6682\u65E0\u987E\u5BA2\u8BB0\u5F55\u3002\n";
+        pause();
         return;
     }
     string sep = "\u2502";
@@ -596,6 +628,7 @@ void list_customers() {
         string bs; { stringstream ss; ss << fixed << setprecision(2) << kv.second.balance; bs = ss.str(); }
         cout << pad_cn(kv.second.account, 20) << sep << pad_cn(kv.second.nickname, 22) << sep << pad_cn(bs, 10) << "\n";
     }
+    pause();
 }
 
 // main —— 主菜单：选择管理员登录或顾客入口
