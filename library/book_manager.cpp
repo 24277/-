@@ -67,10 +67,11 @@ static void cls() {
     system("cls");
 }
 
-// pause —— 提示用户按任意键继续
+// pause —— 提示用户按任意键继续，然后清屏
 static void pause() {
     cout << "\n\u8BF7\u6309\u4EFB\u610F\u952E\u7EE7\u7EED...";
     cin.get();
+    cls();
 }
 
 // load_data —— 从 books.txt 读取数据到内存
