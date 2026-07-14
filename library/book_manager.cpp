@@ -39,6 +39,10 @@ static map<string, Customer> customers; // 顾客名 -> 顾客
 static const char* DATA_FILE = "books.txt";      // 数据文件路径
 static const char* CUSTOMER_FILE = "customers.txt"; // 顾客数据文件路径
 
+// 管理员固定账号（已知且不可更改）
+static const string ADMIN_NAME = "admin";
+static const string ADMIN_PASS = "123456";
+
 // now_str —— 获取当前日期字符串（YYYY-MM-DD 格式）
 static string now_str() {
     time_t t = time(nullptr);
@@ -362,37 +366,88 @@ void query_books_customer() {
     }
 }
 
-// customer_menu —— 顾客子菜单
-void customer_menu() {
+// 前向声明
+void list_customers();
+void register_customer();
+
+// admin_book_menu —— 管理员图书管理子菜单（增删改查）
+void admin_book_menu() {
     string line;
     do {
         cout << "\n========================================\n";
-        cout << "      \u987E\u5BA2\u670D\u52A1\u7CFB\u7EDF\n";
+        cout << "      \u7BA1\u7406\u5458\u56FE\u4E66\u7BA1\u7406\n";
         cout << "========================================\n";
-        cout << "  1. \u6CE8\u518C\u987E\u5BA2\n";
-        cout << "  2. \u5145\u503C\n";
-        cout << "  3. \u67E5\u8BE2\u56FE\u4E66\n";
-        cout << "  4. \u8D2D\u4E70\u56FE\u4E66\n";
+        cout << "  1. \u6DFB\u52A0\u56FE\u4E66\n";
+        cout << "  2. \u67E5\u770B\u6240\u6709\u56FE\u4E66\n";
+        cout << "  3. \u641C\u7D22\u56FE\u4E66\n";
+        cout << "  4. \u4FEE\u6539\u56FE\u4E66\u4FE1\u606F\n";
+        cout << "  5. \u5220\u9664\u56FE\u4E66\n";
+        cout << "  6. \u6CE8\u518C\u987E\u5BA2\n";
+        cout << "  7. \u67E5\u770B\u6240\u6709\u987E\u5BA2\n";
         cout << "  0. \u8FD4\u56DE\u4E3B\u83DC\u5355\n";
         cout << "========================================\n";
         cout << "\u8BF7\u9009\u62E9: ";
         getline(cin, line);
-        if (line.size() != 1 || line[0] < '0' || line[0] > '4') {
+        if (line.size() != 1 || line[0] < '0' || line[0] > '7') {
             cout << "\u65E0\u6548\u9009\u62E9\uFF0C\u8BF7\u91CD\u8F93\u3002\n";
             continue;
         }
         int c = line[0] - '0';
         if (c == 0) break;
         switch (c) {
-            case 1: register_customer(); break;
-            case 2: recharge(); break;
-            case 3: query_books_customer(); break;
-            case 4: purchase_book(); break;
+            case 1: add_book(); break;
+            case 2: list_books(); break;
+            case 3: search_book(); break;
+            case 4: update_book(); break;
+            case 5: delete_book(); break;
+            case 6: register_customer(); break;
+            case 7: list_customers(); break;
         }
     } while (true);
 }
 
-// main —— 主菜单循环，加载数据后进入操作选择
+// customer_menu —— 顾客子菜单（查书、充值、购买，不包含注册）
+void customer_menu() {
+    string line;
+    do {
+        cout << "\n========================================\n";
+        cout << "      \u987E\u5BA2\u670D\u52A1\u7CFB\u7EDF\n";
+        cout << "========================================\n";
+        cout << "  1. \u67E5\u8BE2\u56FE\u4E66\n";
+        cout << "  2. \u5145\u503C\n";
+        cout << "  3. \u8D2D\u4E70\u56FE\u4E66\n";
+        cout << "  0. \u8FD4\u56DE\u4E3B\u83DC\u5355\n";
+        cout << "========================================\n";
+        cout << "\u8BF7\u9009\u62E9: ";
+        getline(cin, line);
+        if (line.size() != 1 || line[0] < '0' || line[0] > '3') {
+            cout << "\u65E0\u6548\u9009\u62E9\uFF0C\u8BF7\u91CD\u8F93\u3002\n";
+            continue;
+        }
+        int c = line[0] - '0';
+        if (c == 0) break;
+        switch (c) {
+            case 1: query_books_customer(); break;
+            case 2: recharge(); break;
+            case 3: purchase_book(); break;
+        }
+    } while (true);
+}
+
+// list_customers —— 管理员查看所有顾客列表
+void list_customers() {
+    if (customers.empty()) {
+        cout << "\n\u6682\u65E0\u987E\u5BA2\u8BB0\u5F55\u3002\n";
+        return;
+    }
+    cout << "\n" << left << setw(20) << "\u987E\u5BA2\u540D" << setw(10) << "\u4F59\u989D" << "\n";
+    cout << string(30, '-') << "\n";
+    for (auto& kv : customers) {
+        cout << setw(20) << kv.second.name << fixed << setprecision(2) << kv.second.balance << "\n";
+    }
+}
+
+// main —— 主菜单：选择管理员登录或顾客入口
 int main() {
     load_data();
     load_customers();
@@ -401,18 +456,13 @@ int main() {
         cout << "\n========================================\n";
         cout << "      \u56FE\u4E66\u4FE1\u606F\u7BA1\u7406\u7CFB\u7EDF\n";
         cout << "========================================\n";
-        cout << "  1. \u6DFB\u52A0\u56FE\u4E66\n";
-        cout << "  2. \u67E5\u770B\u6240\u6709\u56FE\u4E66\n";
-        cout << "  3. \u641C\u7D22\u56FE\u4E66\n";
-        cout << "  4. \u4FEE\u6539\u56FE\u4E66\u4FE1\u606F\n";
-        cout << "  5. \u5220\u9664\u56FE\u4E66\n";
-        cout << "  6. \u987E\u5BA2\u670D\u52A1\n";
+        cout << "  1. \u7BA1\u7406\u5458\u767B\u5F55\n";
+        cout << "  2. \u987E\u5BA2\u5165\u53E3\n";
         cout << "  0. \u9000\u51FA\n";
         cout << "========================================\n";
         cout << "\u8BF7\u9009\u62E9: ";
         getline(cin, line);
-        if (line.empty()) { getline(cin, line); }
-        if (line.size() != 1 || line[0] < '0' || line[0] > '6') {
+        if (line.size() != 1 || line[0] < '0' || line[0] > '2') {
             cout << "\u65E0\u6548\u9009\u62E9\uFF0C\u8BF7\u91CD\u8F93\u3002\n";
             continue;
         }
@@ -421,13 +471,18 @@ int main() {
             cout << "\u5DF2\u9000\u51FA\u7CFB\u7EDF\u3002\n";
             break;
         }
-        switch (choice) {
-            case 1: add_book(); break;
-            case 2: list_books(); break;
-            case 3: search_book(); break;
-            case 4: update_book(); break;
-            case 5: delete_book(); break;
-            case 6: customer_menu(); break;
+        if (choice == 1) {
+            string name, pass;
+            cout << "\u8D26\u53F7: "; getline(cin, name);
+            cout << "\u5BC6\u7801: "; getline(cin, pass);
+            if (name == ADMIN_NAME && pass == ADMIN_PASS) {
+                admin_book_menu();
+            } else {
+                cout << "\u8D26\u53F7\u6216\u5BC6\u7801\u9519\u8BEF\uFF01\n";
+            }
+        } else {
+            cout << "\u6B22\u8FCE\u8FDB\u5165\u987E\u5BA2\u670D\u52A1\u7CFB\u7EDF\uFF0C\u5982\u9700\u6CE8\u518C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u3002\n";
+            customer_menu();
         }
     } while (true);
     return 0;
