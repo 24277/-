@@ -69,10 +69,15 @@ static void cls() {
     system("cls");
 }
 
-// pause —— 提示用户按任意键继续，然后清屏
+// pause —— 提示用户按任意键继续
 static void pause() {
     cout << "\n\u8BF7\u6309\u4EFB\u610F\u952E\u7EE7\u7EED...";
     cin.get();
+}
+
+// pause_cls —— 提示用户按任意键继续，然后清屏
+static void pause_cls() {
+    pause();
     cls();
 }
 
@@ -628,6 +633,7 @@ int main() {
     load_customers();
     string line;
     do {
+        cls();
         cout << "\n========================================\n";
         cout << "      \u56FE\u4E66\u4FE1\u606F\u7BA1\u7406\u7CFB\u7EDF\n";
         cout << "========================================\n";
@@ -648,20 +654,20 @@ int main() {
         }
         if (choice == 1) {
             cls();
+            cout << "=== \u7BA1\u7406\u5458\u767B\u5F55 ===\n";
             string name, pass;
             cout << "\u8D26\u53F7: "; getline(cin, name);
             cout << "\u5BC6\u7801: "; getline(cin, pass);
             if (name == ADMIN_NAME && pass == ADMIN_PASS) {
                 admin_book_menu();
-                cls();
             } else {
                 cout << "\u8D26\u53F7\u6216\u5BC6\u7801\u9519\u8BEF\uFF01\n";
                 pause();
             }
         } else {
             cls();
+            cout << "=== \u987E\u5BA2\u767B\u5F55 ===\n";
             customer_menu();
-            cls();
         }
     } while (true);
     return 0;
