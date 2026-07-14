@@ -148,13 +148,40 @@ static bool try_merge(Book& b) {
     return false;
 }
 
-// generate_id —— 根据类别首字母自动生成编号（类别首字母 + 该类别已有数量 + 1）
-// 例如已存在 J001、J002 则新增图书返回 J003
+// generate_id —— 根据类别映射字母 + 序号自动生成编号
+// 类别->字母映射：计算机->J, 文学->W, 科幻->K, 历史->L, 科技->J, 教育->E
+// 未映射的中文类别自动分配 A-Z 中尚未使用的字母，英文类别直接用首字母大写
+static const char* CAT_ID_MAP[] = {
+    "\u8BA1\u7B97\u673A,J", "\u79D1\u6280,J",
+    "\u6587\u5B66,W", "\u5386\u53F2,L",
+    "\u79D1\u5E7B,K", "\u6559\u80B2,E", ""
+};
 static string generate_id(const string& category) {
     if (category.empty()) return "X001";
-    char prefix = (unsigned char)category[0];
-    if (prefix >= 'a' && prefix <= 'z') prefix -= 32;
-    if (!((prefix >= 'A' && prefix <= 'Z') || (prefix >= 128))) prefix = 'X';
+    char prefix = 'X';
+    string cat_trimmed = category;
+    for (int i = 0; CAT_ID_MAP[i][0]; i++) {
+        string entry = CAT_ID_MAP[i];
+        size_t pos = entry.find(',');
+        if (pos != string::npos && entry.substr(0, pos) == cat_trimmed) {
+            prefix = entry[pos + 1];
+            break;
+        }
+    }
+    if (prefix == 'X' && ((unsigned char)category[0] < 128)) {
+        prefix = (unsigned char)category[0];
+        if (prefix >= 'a' && prefix <= 'z') prefix -= 32;
+        if (!(prefix >= 'A' && prefix <= 'Z')) prefix = 'X';
+    }
+    if (prefix == 'X') {
+        bool used[26] = {false};
+        for (auto& b : books) {
+            if (b.id.size() >= 1 && b.id[0] >= 'A' && b.id[0] <= 'Z') used[b.id[0] - 'A'] = true;
+        }
+        for (int i = 0; i < 26; i++) {
+            if (!used[i]) { prefix = (char)('A' + i); break; }
+        }
+    }
     int max_seq = 0;
     for (auto& b : books) {
         if (b.id.size() >= 4 && b.id[0] == prefix && isdigit(b.id[1]) && isdigit(b.id[2]) && isdigit(b.id[3])) {
