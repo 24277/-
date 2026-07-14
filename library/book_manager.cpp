@@ -31,6 +31,7 @@ struct Book {
 // Customer 结构体 —— 存储顾客信息
 struct Customer {
     string name;        // 顾客名
+    string password;    // 密码
     double balance;     // 账户余额
 };
 
@@ -101,7 +102,7 @@ void save_data() {
 }
 
 // load_customers —— 从 customers.txt 读取顾客数据
-// 每行格式：顾客名|余额
+// 每行格式：顾客名|密码|余额
 void load_customers() {
     customers.clear();
     ifstream in(CUSTOMER_FILE);
@@ -112,6 +113,7 @@ void load_customers() {
         stringstream ss(line);
         Customer c;
         getline(ss, c.name, '|');
+        getline(ss, c.password, '|');
         string bs;
         getline(ss, bs, '|');
         if (c.name.empty() || bs.empty()) continue;
@@ -124,7 +126,7 @@ void load_customers() {
 void save_customers() {
     ofstream out(CUSTOMER_FILE);
     for (auto& kv : customers) {
-        out << kv.second.name << '|' << kv.second.balance << '\n';
+        out << kv.second.name << '|' << kv.second.password << '|' << kv.second.balance << '\n';
     }
 }
 
@@ -262,7 +264,7 @@ void update_book() {
     cout << "\u672A\u627E\u5230\u8BE5\u7F16\u53F7\u7684\u56FE\u4E66\u3002\n";
 }
 
-// register_customer —— 注册新顾客
+// register_customer —— 注册新顾客（管理员操作）
 void register_customer() {
     Customer c;
     cout << "\n=== \u6CE8\u518C\u987E\u5BA2 ===\n";
@@ -271,10 +273,27 @@ void register_customer() {
         cout << "\u8BE5\u987E\u5BA2\u540D\u5DF2\u5B58\u5728\u3002\n";
         return;
     }
+    cout << "\u5BC6\u7801: "; getline(cin, c.password);
     c.balance = 0;
     customers[c.name] = c;
     save_customers();
     cout << "\u987E\u5BA2\u201C" << c.name << "\u201D\u6CE8\u518C\u6210\u529F\uFF01\n";
+}
+
+// customer_login —— 顾客登录，返回 true 表示登录成功
+static bool customer_login() {
+    string name, pass;
+    cout << "\u987E\u5BA2\u540D: "; getline(cin, name);
+    if (!customers.count(name)) {
+        cout << "\u987E\u5BA2\u201C" << name << "\u201D\u4E0D\u5B58\u5728\uFF0C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u6CE8\u518C\u3002\n";
+        return false;
+    }
+    cout << "\u5BC6\u7801: "; getline(cin, pass);
+    if (customers[name].password != pass) {
+        cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n";
+        return false;
+    }
+    return true;
 }
 
 // recharge —— 顾客充值
@@ -283,9 +302,10 @@ void recharge() {
     cout << "\n=== \u5145\u503C ===\n";
     cout << "\u987E\u5BA2\u540D: "; getline(cin, name);
     if (!customers.count(name)) {
-        cout << "\u987E\u5BA2\u201C" << name << "\u201D\u4E0D\u5B58\u5728\uFF0C\u8BF7\u5148\u6CE8\u518C\u3002\n";
+        cout << "\u987E\u5BA2\u201C" << name << "\u201D\u4E0D\u5B58\u5728\uFF0C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u6CE8\u518C\u3002\n";
         return;
     }
+    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[name].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; return; } }
     cout << "\u5145\u503C\u91D1\u989D: "; getline(cin, amount_s);
     double amount = stod(amount_s);
     customers[name].balance += amount;
@@ -300,9 +320,10 @@ void purchase_book() {
     cout << "\n=== \u8D2D\u4E70\u56FE\u4E66 ===\n";
     cout << "\u987E\u5BA2\u540D: "; getline(cin, name);
     if (!customers.count(name)) {
-        cout << "\u987E\u5BA2\u201C" << name << "\u201D\u4E0D\u5B58\u5728\uFF0C\u8BF7\u5148\u6CE8\u518C\u3002\n";
+        cout << "\u987E\u5BA2\u201C" << name << "\u201D\u4E0D\u5B58\u5728\uFF0C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u6CE8\u518C\u3002\n";
         return;
     }
+    cout << "\u5BC6\u7801: "; { string _t; getline(cin, _t); if (customers[name].password != _t) { cout << "\u5BC6\u7801\u9519\u8BEF\uFF01\n"; return; } }
     cout << "\u56FE\u4E66\u7F16\u53F7: "; getline(cin, bid);
     int idx = -1;
     for (size_t i = 0; i < books.size(); i++) {
@@ -406,8 +427,9 @@ void admin_book_menu() {
     } while (true);
 }
 
-// customer_menu —— 顾客子菜单（查书、充值、购买，不包含注册）
+// customer_menu —— 顾客子菜单（查书、充值、购买）
 void customer_menu() {
+    if (!customer_login()) return;
     string line;
     do {
         cout << "\n========================================\n";
@@ -481,7 +503,6 @@ int main() {
                 cout << "\u8D26\u53F7\u6216\u5BC6\u7801\u9519\u8BEF\uFF01\n";
             }
         } else {
-            cout << "\u6B22\u8FCE\u8FDB\u5165\u987E\u5BA2\u670D\u52A1\u7CFB\u7EDF\uFF0C\u5982\u9700\u6CE8\u518C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u3002\n";
             customer_menu();
         }
     } while (true);
