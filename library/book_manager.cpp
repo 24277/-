@@ -62,6 +62,11 @@ static string trim(const string& s) {
     return (l == string::npos) ? "" : s.substr(l, r - l + 1);
 }
 
+// cls —— 清屏
+static void cls() {
+    system("cls");
+}
+
 // load_data —— 从 books.txt 读取数据到内存
 // 每行格式：编号|书名|作者|类型|价格|数量|上架日期
 void load_data() {
@@ -206,11 +211,13 @@ void add_book() {
     b.added_date = now_str();
     if (try_merge(b)) {
         save_data();
+        cls();
         return;
     }
     b.id = generate_id(b.category);
     books.push_back(b);
     save_data();
+    cls();
     cout << "\u56FE\u4E66\u201C" << b.title << "\u201D\u6DFB\u52A0\u6210\u529F\uFF01\u7F16\u53F7: " << b.id << "\n";
 }
 
@@ -259,6 +266,7 @@ static void print_book(const Book& b) {
 
 // list_books —— 表格形式列出所有图书
 void list_books() {
+    cls();
     if (books.empty()) {
         cout << "\n\u6682\u65E0\u56FE\u4E66\u8BB0\u5F55\u3002\n";
         return;
@@ -271,6 +279,7 @@ void list_books() {
 
 // search_by_category —— 按类别搜索图书
 void search_by_category() {
+    cls();
     string cat;
     cout << "\n\u8F93\u5165\u7C7B\u522B\u540D\u79F0\u641C\u7D22: ";
     getline(cin, cat);
@@ -286,6 +295,7 @@ void search_by_category() {
 
 // search_by_date_range —— 按时间段搜索图书（起始日期 ~ 截止日期）
 void search_by_date_range() {
+    cls();
     string start, end;
     cout << "\u8D77\u59CB\u65E5\u671F(YYYY-MM-DD): "; getline(cin, start);
     cout << "\u622A\u6B62\u65E5\u671F(YYYY-MM-DD): "; getline(cin, end);
@@ -301,6 +311,7 @@ void search_by_date_range() {
 
 // search_book —— 按书名或编号搜索图书
 void search_book() {
+    cls();
     string kw;
     cout << "\n\u8F93\u5165\u4E66\u540D\u6216\u7F16\u53F7\u641C\u7D22: ";
     getline(cin, kw);
@@ -321,6 +332,7 @@ void delete_book() {
     getline(cin, id);
     auto it = remove_if(books.begin(), books.end(),
         [&](Book& b) { return b.id == id; });
+    cls();
     if (it != books.end()) {
         books.erase(it, books.end());
         save_data();
@@ -348,6 +360,7 @@ void update_book() {
             cout << "\u65B0\u5E93\u5B58(\u5F53\u524D:" << b.stock << "): ";
             { string _t; getline(cin, _t); b.stock = stoi(_t); }
             save_data();
+            cls();
             cout << "\u56FE\u4E66\u4FEE\u6539\u6210\u529F\u3002\n";
             return;
         }
@@ -376,6 +389,7 @@ void register_customer() {
     c.balance = 0;
     customers[c.account] = c;
     save_customers();
+    cls();
     cout << "\u987E\u5BA2\u201C" << c.nickname << "\u201D\u6CE8\u518C\u6210\u529F\uFF01\n";
 }
 
@@ -409,6 +423,7 @@ void recharge() {
     double amount = stod(amount_s);
     customers[acct].balance += amount;
     save_customers();
+    cls();
     cout << "\u5145\u503C\u6210\u529F\uFF01" << customers[acct].nickname << "\uFF0C\u5F53\u524D\u4F59\u989D: " << fixed << setprecision(2) << customers[acct].balance << "\n";
 }
 
@@ -451,6 +466,7 @@ void purchase_book() {
     b.stock -= qty;
     save_data();
     save_customers();
+    cls();
     cout << "\u8D2D\u4E70\u6210\u529F\uFF01" << customers[acct].nickname << "\u201C" << b.title << "\u201D x" << qty
          << "\uFF0C\u82B1\u8D39: " << cost << "\uFF0C\u4F59\u989D: " << customers[acct].balance << "\n";
 }
@@ -458,6 +474,7 @@ void purchase_book() {
 // query_books_customer —— 顾客查询图书（支持关键字、类别、时间段）
 void query_books_customer() {
     load_data();
+    cls();
     if (books.empty()) {
         cout << "\n\u6682\u65E0\u56FE\u4E66\u8BB0\u5F55\u3002\n";
         return;
@@ -567,6 +584,7 @@ void customer_menu() {
 
 // list_customers —— 管理员查看所有顾客列表
 void list_customers() {
+    cls();
     if (customers.empty()) {
         cout << "\n\u6682\u65E0\u987E\u5BA2\u8BB0\u5F55\u3002\n";
         return;
