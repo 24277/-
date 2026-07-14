@@ -1,0 +1,1 @@
+{"round_id":21,"prompt_content":"进行登录操作和从顾客、管理员用户返回登录界面时，清空面板内容","modify_diff":"main函数: 选管理员/顾客后先cls; admin_book_menu/customer_menu返回后cls; 登录失败pause后cls","commit_hash":"435f150927132d028aff0f43e38bf3ce93286090","modify_time":"2026-07-14 23:29:20","agent_type":"Kilo Code","dev_language":"C++"}

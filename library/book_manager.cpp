@@ -647,16 +647,21 @@ int main() {
             break;
         }
         if (choice == 1) {
+            cls();
             string name, pass;
             cout << "\u8D26\u53F7: "; getline(cin, name);
             cout << "\u5BC6\u7801: "; getline(cin, pass);
             if (name == ADMIN_NAME && pass == ADMIN_PASS) {
                 admin_book_menu();
+                cls();
             } else {
                 cout << "\u8D26\u53F7\u6216\u5BC6\u7801\u9519\u8BEF\uFF01\n";
+                pause();
             }
         } else {
+            cls();
             customer_menu();
+            cls();
         }
     } while (true);
     return 0;
