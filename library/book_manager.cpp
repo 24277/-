@@ -256,7 +256,7 @@ static string pad_cn(const string& s, int target) {
 
 // print_book_header —— 打印图书列表表头（带分界线）
 static void print_book_header() {
-    string sep = "\u2502";
+    string sep = "|";
     cout << "\n" << pad_cn("\u7F16\u53F7", 12) << sep
          << pad_cn("\u4E66\u540D", 30) << sep
          << pad_cn("\u4F5C\u8005", 22) << sep
@@ -264,12 +264,12 @@ static void print_book_header() {
          << pad_cn("\u4EF7\u683C", 10) << sep
          << pad_cn("\u5E93\u5B58", 10) << sep
          << pad_cn("\u4E0A\u67B6\u65F6\u95F4", 14) << "\n";
-    cout << string(116, '=') << "\n";
+    cout << string(118, '=') << "\n";
 }
 
 // print_book —— 打印单本图书（带分界线）
 static void print_book(const Book& b) {
-    string sep = "\u2502";
+    string sep = "|";
     string ps;
     { stringstream ss; ss << fixed << setprecision(2) << b.price; ps = ss.str(); }
     cout << pad_cn(b.id, 12) << sep
@@ -620,7 +620,7 @@ void list_customers() {
         pause();
         return;
     }
-    string sep = "\u2502";
+    string sep = "|";
     cout << "\n" << pad_cn("\u8D26\u53F7", 20) << sep << pad_cn("\u6635\u79F0", 22) << sep << pad_cn("\u4F59\u989D", 10) << "\n";
     cout << string(54, '=') << "\n";
     for (auto& kv : customers) {
