@@ -247,25 +247,16 @@ static int display_w(const string& s) {
     return w;
 }
 
-// pad_cn —— 按显示宽度填充空格对齐，字符串超长时截断避免破坏列对齐
+// pad_cn —— 按显示宽度填充空格对齐
 static string pad_cn(const string& s, int target) {
     int d = display_w(s);
-    if (d >= target) {
-        string t;
-        int w = 0;
-        for (unsigned char c : s) {
-            int cw = (c >= 0x80) ? 2 : 1;
-            if (w + cw > target - 1) break;
-            t += c; w += cw;
-        }
-        return t + " ";
-    }
+    if (d >= target) return s + " ";
     return s + string(target - d, ' ');
 }
 
 // print_book_header —— 打印图书列表表头（带分界线）
 static void print_book_header() {
-    string sep = " | ";
+    string sep = "|";
     cout << "\n" << pad_cn("\u7F16\u53F7", 12) << sep
          << pad_cn("\u4E66\u540D", 30) << sep
          << pad_cn("\u4F5C\u8005", 22) << sep
@@ -273,12 +264,12 @@ static void print_book_header() {
          << pad_cn("\u4EF7\u683C", 10) << sep
          << pad_cn("\u5E93\u5B58", 10) << sep
          << pad_cn("\u4E0A\u67B6\u65F6\u95F4", 14) << "\n";
-    cout << string(132, '=') << "\n";
+    cout << string(118, '=') << "\n";
 }
 
 // print_book —— 打印单本图书（带分界线）
 static void print_book(const Book& b) {
-    string sep = " | ";  // 12+3+30+3+22+3+16+3+10+3+10+3+14 = 132
+    string sep = "|";
     string ps;
     { stringstream ss; ss << fixed << setprecision(2) << b.price; ps = ss.str(); }
     cout << pad_cn(b.id, 12) << sep
@@ -629,9 +620,9 @@ void list_customers() {
         pause();
         return;
     }
-    string sep = " | ";
+    string sep = "|";
     cout << "\n" << pad_cn("\u8D26\u53F7", 20) << sep << pad_cn("\u6635\u79F0", 22) << sep << pad_cn("\u4F59\u989D", 10) << "\n";
-    cout << string(62, '=') << "\n";
+    cout << string(54, '=') << "\n";
     for (auto& kv : customers) {
         string bs; { stringstream ss; ss << fixed << setprecision(2) << kv.second.balance; bs = ss.str(); }
         cout << pad_cn(kv.second.account, 20) << sep << pad_cn(kv.second.nickname, 22) << sep << pad_cn(bs, 10) << "\n";
